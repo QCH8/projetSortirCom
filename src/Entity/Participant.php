@@ -6,8 +6,11 @@ use App\Repository\ParticipantRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: ParticipantRepository::class)]
+#[UniqueEntity(fields: ['pseudo'], message: 'Ce pseudo est déjà pris.')]
+#[UniqueEntity(fields: ['mail'], message: 'Ce mail est déjà pris.')]
 class Participant
 {
     #[ORM\Id]
@@ -24,7 +27,7 @@ class Participant
     #[ORM\Column(length: 15, nullable: true)]
     private ?string $telephone = null;
 
-    #[ORM\Column(length: 180)]
+    #[ORM\Column(length: 180, unique: true)]
     private ?string $mail = null;
 
     #[ORM\Column(type: 'string', length: 255)]
@@ -52,7 +55,7 @@ class Participant
     #[ORM\ManyToMany(targetEntity: Sortie::class, mappedBy: 'inscrits')]
     private Collection $sortiesInscrit;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true)]
     private ?string $pseudo = null;
 
     public function __construct()
@@ -114,12 +117,12 @@ class Participant
         return $this;
     }
 
-    public function isPassword(): ?bool
+    public function getPassword(): ?string
     {
         return $this->password;
     }
 
-    public function setPassword(bool $password): static
+    public function setPassword(string $password): static
     {
         $this->password = $password;
 
