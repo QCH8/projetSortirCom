@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ParticipantRepository::class)]
+//todo: ajouter "implements \Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface" + method set Password
 class Participant
 {
     #[ORM\Id]
@@ -114,6 +115,7 @@ class Participant
         return $this;
     }
 
+    //todo: enlever isPassword()
     public function isPassword(): ?bool
     {
         return $this->password;
