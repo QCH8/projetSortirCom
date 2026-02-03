@@ -52,6 +52,9 @@ class Participant
     #[ORM\ManyToMany(targetEntity: Sortie::class, mappedBy: 'inscrits')]
     private Collection $sortiesInscrit;
 
+    #[ORM\Column(length: 255)]
+    private ?string $pseudo = null;
+
     public function __construct()
     {
         $this->sorties = new ArrayCollection();
@@ -212,6 +215,18 @@ class Participant
         if ($this->sortiesInscrit->removeElement($sortiesInscrit)) {
             $sortiesInscrit->removeInscrit($this);
         }
+
+        return $this;
+    }
+
+    public function getPseudo(): ?string
+    {
+        return $this->pseudo;
+    }
+
+    public function setPseudo(string $pseudo): static
+    {
+        $this->pseudo = $pseudo;
 
         return $this;
     }
