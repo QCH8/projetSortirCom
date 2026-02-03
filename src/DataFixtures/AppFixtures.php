@@ -61,8 +61,8 @@ class AppFixtures extends Fixture
         $userAdmin->setCampus($campusArray[array_rand(($campusArray))]);
         $userAdmin->setMail("admin@eni.fr");
         $userAdmin->setPrenom($faker->firstName());
-        $userAdmin->setPassword("admin");
-        //$userAdmin->setPassword($this->hasher->hashPassword($userAdmin, "admin"));
+        // $userAdmin->setPassword("admin");
+        $userAdmin->setPassword($this->hasher->hashPassword($userAdmin, "admin"));
         $userAdmin->setTelephone($faker->phoneNumber());
         $userAdmin->setPseudo("Jean-Eude");
         $manager->persist($userAdmin);
@@ -75,8 +75,8 @@ class AppFixtures extends Fixture
             $user->setCampus($campusArray[array_rand(($campusArray))]);
             $user->setMail($faker->email());
             $user->setPrenom($faker->firstName());
-            $user->setPassword("test" . $i);
-            //$user->setPassword($this->hasher->hashPassword($user, $faker->password() ));
+            //$user->setPassword("test" . $i);
+            $user->setPassword($this->hasher->hashPassword($user, $faker->password() ));
             $user->setTelephone($faker->phoneNumber());
             $user->setPseudo($faker->name());
             $manager->persist($user);
