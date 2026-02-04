@@ -14,6 +14,7 @@ class SortieController extends AbstractController
     public function liste(SortieRepository $sortieRepository, Request $request): Response
     {
         // 1. Récupération de l'utilisateur connecté (le Participant)
+        /** @var Participant $utilisateur */
         $utilisateur = $this->getUser();
 
         // 2. Préparation des données initiales (Campus par défaut de l'utilisateur)
