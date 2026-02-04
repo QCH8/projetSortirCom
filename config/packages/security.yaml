@@ -25,6 +25,9 @@ security:
                 enable_csrf: true
                 username_parameter: _username
                 password_parameter: _password
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800
 
             logout:
                 path: app_deconnexion
