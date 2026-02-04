@@ -31,7 +31,7 @@ class SortieController extends AbstractController
         // 5. Appel de la méthode personnalisée dans le Repository
         $sorties = $sortieRepository->findSearch($utilisateur, $criteres);
 
-        return $this->render('sortie/liste.html.twig', [
+        return $this->render('sortie/accueil.html.twig', [
             'form' => $form->createView(),
             'sorties' => $sorties,
         ]);
