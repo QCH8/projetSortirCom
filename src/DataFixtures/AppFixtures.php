@@ -66,7 +66,7 @@ class AppFixtures extends Fixture
         $userAdmin->setCampus($campusArray[array_rand(($campusArray))]);
         $userAdmin->setMail("admin@eni.fr");
         $userAdmin->setPrenom($faker->firstName());
-        //$userAdmin->setPassword("admin");
+        // $userAdmin->setPassword("admin");
         $userAdmin->setPassword($this->hasher->hashPassword($userAdmin, "admin"));
         $userAdmin->setTelephone($faker->phoneNumber());
         $userAdmin->setPseudo("Jean-Eude");

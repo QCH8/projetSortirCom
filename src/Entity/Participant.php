@@ -7,11 +7,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: ParticipantRepository::class)]
 #[UniqueEntity(fields: ['pseudo'], message: 'Ce pseudo est déjà pris.')]
 #[UniqueEntity(fields: ['mail'], message: 'Ce mail est déjà pris.')]
-class Participant implements \Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface
+class Participant implements PasswordAuthenticatedUserInterface, UserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -55,7 +57,7 @@ class Participant implements \Symfony\Component\Security\Core\User\PasswordAuthe
     #[ORM\ManyToMany(targetEntity: Sortie::class, mappedBy: 'inscrits')]
     private Collection $sortiesInscrit;
 
-    #[ORM\Column(length: 255, unique: true)]
+    #[ORM\Column(length: 180, unique: true)]
     private ?string $pseudo = null;
 
     public function __construct()
@@ -122,9 +124,9 @@ class Participant implements \Symfony\Component\Security\Core\User\PasswordAuthe
         return $this->password;
     }
 
-    public function setPassword(string $password): static
+    public function setPassword(string $hashedPassword): static
     {
-        $this->password = $password;
+        $this->password = $hashedPassword;
 
         return $this;
     }
@@ -232,5 +234,19 @@ class Participant implements \Symfony\Component\Security\Core\User\PasswordAuthe
         $this->pseudo = $pseudo;
 
         return $this;
+    }
+
+    public function getRoles(): array
+    {
+        $roles[] = 'ROLE_USER';
+        if($this->isAdministrateur()){
+            $roles[] = 'ROLE_ADMIN';
+        }
+        return $roles;
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return $this->getMail();
     }
 }
