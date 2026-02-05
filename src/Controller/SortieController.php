@@ -44,6 +44,15 @@ class SortieController extends AbstractController
         ]);
     }
 
+    // --- CREATION DE LA ROUTE 'Détail d'une sortie' --- //
+    #[Route('/sortie/detail/{id}', name: 'app_sortie_detail')]
+    public function detail(Sortie $sortie): Response
+    {
+        return $this->render('sortie/detail.html.twig', [
+            'sortie' => $sortie
+        ]);
+    }
+
     // --- CREATION DE LA ROUTE "Créer une sortie" --- //
     #[Route('/sortie/creer', name: 'app_sortie_creer')]
     public function creer(Request $request, EntityManagerInterface $entityManager, EtatRepository $etatRepository): Response
