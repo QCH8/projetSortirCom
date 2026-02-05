@@ -57,7 +57,7 @@ class AppFixtures extends Fixture
         $userAdmin = new Participant();
         $userAdmin->setNom($faker->name());
         $userAdmin->setActif(true);
-        $userAdmin->setAdministrateur(true);
+        $userAdmin->setAdministrateur(false);
         $userAdmin->setCampus($campusArray[array_rand(($campusArray))]);
         $userAdmin->setMail("admin@eni.fr");
         $userAdmin->setPrenom($faker->firstName());

@@ -47,7 +47,9 @@ class ParticipantType extends AbstractType
             ->add('campus', EntityType::class, [
                 'class' => Campus::class,
                 'choice_label' => 'nom',
-                'attr' => ['class' => $inputClass]
+                'attr' => ['class' => $inputClass],
+                'disabled' => !$options['is_admin'], 
+                'help' => !$options['is_admin'] ? 'Seul un administrateur peut modifier votre campus.' : null,
             ]);
     }
 
@@ -55,6 +57,8 @@ class ParticipantType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Participant::class,
+            'is_admin' => false,
         ]);
+        $resolver->setAllowedTypes('is_admin', 'bool');
     }
 }
