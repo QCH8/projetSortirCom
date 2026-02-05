@@ -1,0 +1,55 @@
+{# On utilise le squelette de base du site #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier mon profil{% endblock %}
+
+{% block body %}
+{# On centre le formulaire et on limite sa largeur pour le confort visuel #}
+<div class="max-w-2xl mx-auto py-10 px-4">
+    <h1 class="text-3xl font-bold mb-8 text-center">Mon profil</h1>
+
+    {# Début du formulaire #}
+    {{ form_start(form) }}
+        
+        {# Tous les champs sont empilés les uns sous les autres #}
+        <div class="space-y-6">
+            
+            {# Partie 1 : Identité et contact #}
+            <div class="space-y-4">
+                {{ form_row(form.pseudo) }}
+                {{ form_row(form.prenom) }}
+                {{ form_row(form.nom) }}
+                {{ form_row(form.telephone) }}
+                {{ form_row(form.mail) }}
+            </div>
+
+            {# Partie 2 : Le Campus #}
+            <div class="pt-4 border-t">
+                {{ form_row(form.campus) }}
+            </div>
+
+            {# Partie 3 : Sécurité (Mot de passe) #}
+            <div class="pt-4 border-t space-y-4">
+                <p class="text-sm text-gray-500 italic">
+                    Laissez les champs ci-dessous vides si vous ne souhaitez pas changer de mot de passe.
+                </p>
+                {# Affiche le champ mot de passe et sa confirmation #}
+                {{ form_row(form.password) }}
+            </div>
+
+        </div>
+
+        {# Boutons de validation tout en bas #}
+        <div class="mt-8 pt-6 border-t flex flex-col gap-3">
+            <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-md font-bold hover:bg-indigo-700">
+                Enregistrer les modifications
+            </button>
+            <a href="{{ path('app_profil_modifier') }}" class="w-full text-center py-2 text-gray-500 hover:text-gray-800 underline">
+                Annuler et revenir
+            </a>
+        </div>
+
+    {# Fin du formulaire #}
+    {{ form_end(form) }}
+</div>
+{% endblock %}

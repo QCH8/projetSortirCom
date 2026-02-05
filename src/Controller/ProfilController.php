@@ -9,6 +9,7 @@ use App\Form\ParticipantType;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use App\Entity\Participant;
 
 final class ProfilController extends AbstractController
 {
@@ -17,15 +18,15 @@ final class ProfilController extends AbstractController
     public function modifier(Request $request, EntityManagerInterface $entityManagerInterface, UserPasswordHasherInterface $userPasswordHasher): Response
     {
         $participant = $this->getUser();
+        assert($participant instanceof Participant);
         $form = $this->createForm(ParticipantType::class, $participant);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-
-            /* * TODO: Gestion du mot de passe à implémenter après avoir ajouté 
-            * les interfaces UserInterface dans l'entité Participant.
-            * $hashedPassword = $userPasswordHasher->hashPassword($participant, $form->get('password')->getData());
-            * $participant->setPassword($hashedPassword);
-            */
+            $plainPassword = $form->get('password')->getData();
+            if (!empty($plainPassword)) {
+                $hashedPassword = $userPasswordHasher->hashPassword($participant, $plainPassword);
+                $participant->setPassword($hashedPassword);
+            }
 
             $entityManagerInterface->persist($participant);
             $entityManagerInterface->flush();
