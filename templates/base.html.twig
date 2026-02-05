@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr-FR">
     <head>
         <meta charset="UTF-8">
         <title>{% block title %}Welcome!{% endblock %}</title>
@@ -12,6 +12,20 @@
         {% endblock %}
     </head>
     <body>
+        <div class="mx-auto max-w-4xl px-4 pt-4 space-y-3">
+            {% for type, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="rounded-lg border px-4 py-3
+                        {% if type == 'success' %} border-green-300 bg-green-50 text-green-900
+                        {% elseif type == 'error' %} border-red-300 bg-red-50 text-red-900
+                        {% elseif type == 'warning' %} border-yellow-300 bg-yellow-50 text-yellow-900
+                        {% else %} border-blue-300 bg-blue-50 text-blue-900
+                        {% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
         {% block body %}{% endblock %}
     </body>
 </html>
