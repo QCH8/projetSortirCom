@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 class SortieController extends AbstractController
 {
-    #[Route('/', name: 'sortie_liste')]
+    #[Route('/accueil', name: 'sortie_liste')]
     public function liste(SortieRepository $sortieRepository, Request $request): Response
     {
         // 1. Récupération de l'utilisateur connecté (le Participant)
