@@ -68,7 +68,7 @@ class SortieController extends AbstractController
 
             // GESTION DES BOUTONS "ENREGISTRER" vs "PUBLIER"
             // 1. On cherche l'état correspondant dans la base de données
-            if ($request->request->has('Publier')){
+            if ($request->request->has('publier')){
                 $etat = $etatRepository->findOneBy(['libelle' => 'Ouverte']);
             } else {
                 $etat = $etatRepository->findOneBy(['libelle' => 'En création']);
