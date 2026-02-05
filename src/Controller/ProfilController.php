@@ -14,12 +14,13 @@ use App\Entity\Participant;
 final class ProfilController extends AbstractController
 {
     #[Route('/profil/modifier', name: 'app_profil_modifier', methods: ['GET', 'POST'])]
-    // #[IsGranted('ROLE_USER')] // À réactiver quand la connexion sera prête
     public function modifier(Request $request, EntityManagerInterface $entityManagerInterface, UserPasswordHasherInterface $userPasswordHasher): Response
     {
         $participant = $this->getUser();
         assert($participant instanceof Participant);
-        $form = $this->createForm(ParticipantType::class, $participant);
+        $form = $this->createForm(ParticipantType::class, $participant, [
+            'is_admin' => $this->isGranted('ROLE_ADMIN')
+        ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $plainPassword = $form->get('password')->getData();
@@ -30,6 +31,8 @@ final class ProfilController extends AbstractController
 
             $entityManagerInterface->persist($participant);
             $entityManagerInterface->flush();
+            // LE MESSAGE FLASH : (Type de message, Contenu)
+            $this->addFlash('success', 'Votre profil a été mis à jour avec succès !');
             return $this->redirectToRoute('app_profil_modifier');
         }
         return $this->render('profil/modifier.html.twig', [

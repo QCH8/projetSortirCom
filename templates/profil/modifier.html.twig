@@ -1,55 +1,74 @@
-{# On utilise le squelette de base du site #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Modifier mon profil{% endblock %}
+{% block title %}Mon Profil{% endblock %}
 
 {% block body %}
-{# On centre le formulaire et on limite sa largeur pour le confort visuel #}
-<div class="max-w-2xl mx-auto py-10 px-4">
-    <h1 class="text-3xl font-bold mb-8 text-center">Mon profil</h1>
-
-    {# Début du formulaire #}
-    {{ form_start(form) }}
+<div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-2xl mx-auto">
         
-        {# Tous les champs sont empilés les uns sous les autres #}
-        <div class="space-y-6">
-            
-            {# Partie 1 : Identité et contact #}
-            <div class="space-y-4">
-                {{ form_row(form.pseudo) }}
-                {{ form_row(form.prenom) }}
-                {{ form_row(form.nom) }}
-                {{ form_row(form.telephone) }}
-                {{ form_row(form.mail) }}
-            </div>
-
-            {# Partie 2 : Le Campus #}
-            <div class="pt-4 border-t">
-                {{ form_row(form.campus) }}
-            </div>
-
-            {# Partie 3 : Sécurité (Mot de passe) #}
-            <div class="pt-4 border-t space-y-4">
-                <p class="text-sm text-gray-500 italic">
-                    Laissez les champs ci-dessous vides si vous ne souhaitez pas changer de mot de passe.
-                </p>
-                {# Affiche le champ mot de passe et sa confirmation #}
-                {{ form_row(form.password) }}
-            </div>
-
+        {# En-tête de la page #}
+        <div class="text-center mb-10">
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">
+                Mon profil
+            </h1>
+            <p class="mt-2 text-sm text-gray-600">
+                Gérez vos informations personnelles et vos identifiants.
+            </p>
         </div>
 
-        {# Boutons de validation tout en bas #}
-        <div class="mt-8 pt-6 border-t flex flex-col gap-3">
-            <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-md font-bold hover:bg-indigo-700">
-                Enregistrer les modifications
-            </button>
-            <a href="{{ path('app_profil_modifier') }}" class="w-full text-center py-2 text-gray-500 hover:text-gray-800 underline">
-                Annuler et revenir
-            </a>
+        {# La "Carte" du formulaire #}
+        <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-slate-200">
+            {{ form_start(form, {'attr': {'class': 'p-8'}}) }}
+                
+                <div class="space-y-8">
+                    
+                    {# Section Infos Générales #}
+                    <div>
+                        <h2 class="text-lg font-bold text-indigo-600 uppercase tracking-wider mb-4 border-b border-indigo-100 pb-2">
+                            Informations personnelles
+                        </h2>
+                        <div class="space-y-5">
+                            {{ form_row(form.pseudo) }}
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {{ form_row(form.prenom) }}
+                                {{ form_row(form.nom) }}
+                            </div>
+                            {{ form_row(form.telephone) }}
+                            {{ form_row(form.mail) }}
+                        </div>
+                    </div>
+
+                    {# Section Campus #}
+                    <div>
+                        <h2 class="text-lg font-bold text-indigo-600 uppercase tracking-wider mb-4 border-b border-indigo-100 pb-2">
+                            Rattachement
+                        </h2>
+                        {{ form_row(form.campus) }}
+                    </div>
+
+                    {# Section Sécurité #}
+                    <div class="bg-slate-50 -mx-8 px-8 py-6 border-t border-b border-slate-100">
+                        <h2 class="text-lg font-bold text-gray-800 uppercase tracking-wider mb-4">
+                            Sécurité
+                        </h2>
+                        <p class="text-xs text-gray-500 mb-4 italic">
+                            Laissez vide pour conserver votre mot de passe actuel.
+                        </p>
+                        {{ form_row(form.password) }}
+                    </div>
+
+                </div>
+
+                {# Actions #}
+                <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <button type="submit" class="w-full sm:w-auto px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:shadow-none transition-all focus:ring-4 focus:ring-indigo-300">
+                        Enregistrer le profil
+                    </button>
+                </div>
+
+            {{ form_end(form) }}
         </div>
 
-    {# Fin du formulaire #}
-    {{ form_end(form) }}
+    </div>
 </div>
 {% endblock %}
