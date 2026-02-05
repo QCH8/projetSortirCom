@@ -135,4 +135,28 @@ final class ParticipationController extends AbstractController
         return $this->redirectToRoute("app_home");
     }
 
+    #[Route('/sorties/{id}/publication', name: 'participation_publication', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    public function publicationSortie(
+        Sortie $sortie,
+        EntityManagerInterface $manager,
+        Request $request
+    ): RedirectResponse
+    {
+        //Accès User only
+
+        //bien une instance de Participant
+
+        //bien l'organisateur de l'event
+
+        //Protection vs CSRF
+
+        //Vérification : la date limite inscription n'est pas dépassée.
+
+        //Vérification : il reste des places dans la sortie
+
+        //Vérification : le participant n'est pas déjà inscrit
+
+        //Si rien n'est déclenché : on publie
+    }
+
 }
