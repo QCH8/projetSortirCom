@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ parent() }} - Créer une sortie{% endblock %}
+{% block title %}Créer une sortie{% endblock %}
 
 {% block body %}
     <div class="container mt-5">
@@ -10,9 +10,9 @@
             <div class="col-md-8">
                 {{ form_start(form) }}
 
-                {# --- Partie Informations --- #}
-                <div class="card p-4 mb-4">
+                <div class="card p-4 mb-4 shadow-sm">
                     <div class="row">
+                        {# Colonne Gauche #}
                         <div class="col-md-6">
                             {{ form_row(form.nom) }}
                             {{ form_row(form.dateHeureDebut) }}
@@ -20,39 +20,38 @@
                             {{ form_row(form.nbInscriptionsMax) }}
                             {{ form_row(form.duree) }}
                         </div>
+
+                        {# Colonne Droite #}
                         <div class="col-md-6">
                             {{ form_row(form.infosSortie, {'attr': {'rows': 5}}) }}
 
-                            <h5 class="mt-3">Lieu et Ville</h5>
-                            {# Le champ Ville n'est pas lié à la sortie, mais aide à choisir #}
+                            <h5 class="mt-3 text-secondary">Localisation</h5>
+                            {{ form_row(form.campus, {'label': 'Campus (fixé)', 'attr': {'disabled': 'disabled'}}) }}
                             {{ form_row(form.ville) }}
-
-                            {# Le champ Lieu est le vrai champ important #}
                             {{ form_row(form.lieu) }}
 
-                            {# Petit bouton "fake" pour simuler l'ajout de lieu (sera codé plus tard) #}
                             <div class="text-end">
-                                <a href="#" class="btn btn-sm btn-outline-secondary rounded-circle" title="Ajouter un lieu">+</a>
+                                <small class="text-muted">Un lieu manque ? <a href="#">Ajouter un lieu</a></small>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {# --- Les 3 Boutons --- #}
-                <div class="d-flex justify-content-between">
-                    {# Bouton 1 : Enregistrer (En création) #}
-                    <button type="submit" name="enregistrer" class="btn btn-success">
+                {# --- LES BOUTONS D'ACTION --- #}
+                <div class="d-flex justify-content-center gap-3 mb-5">
+                    {# Bouton ENREGISTRER (name="enregistrer") #}
+                    <button type="submit" name="enregistrer" class="btn btn-outline-success btn-lg">
                         Enregistrer
                     </button>
 
-                    {# Bouton 2 : Publier (Ouverte) #}
-                    <button type="submit" name="publier" class="btn btn-primary">
-                        Publier
+                    {# Bouton PUBLIER (name="publier") - C'est lui que le contrôleur écoute #}
+                    <button type="submit" name="publier" class="btn btn-primary btn-lg">
+                        Publier la sortie
                     </button>
 
-                    {# Bouton 3 : Retour (Annuler) #}
-                    <a href="{{ path('sortie_liste') }}" class="btn btn-secondary">
-                        Retour à la liste
+                    {# Bouton ANNULER #}
+                    <a href="{{ path('app_accueil') }}" class="btn btn-secondary btn-lg">
+                        Annuler
                     </a>
                 </div>
 
