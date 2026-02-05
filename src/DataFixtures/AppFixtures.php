@@ -137,10 +137,19 @@ class AppFixtures extends Fixture
 
             $sortie->setNbInscriptionsMax($faker->numberBetween(5,25));
             $sortie->setInfosSortie($faker->sentence(12));
-            $sortie->setOrganisateur($participants[array_rand($participants)]);
+
+            $organisateur =$participants[array_rand($participants)];
+            $sortie->setOrganisateur($organisateur);
+
             $sortie->setCampus($campusArray[array_rand($campusArray)]);
             $sortie->setLieu($lieux[array_rand($lieux)]);
             $sortie->setEtat($etats[array_rand($etats)]);
+
+            for($k=1; $k < $faker->numberBetween(1,$sortie->getNbInscriptionsMax());$k++){
+                $participantSortie = $participants[array_rand($participants)];
+                if($participantSortie !== $organisateur){$sortie->addInscrit($participantSortie);}
+            };
+
             $manager->persist($sortie);
         }
 
