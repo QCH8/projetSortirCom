@@ -1,20 +1,21 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Accueil - Sortir.com{% endblock %}
+{% block title %}{{ parent() }} - Accueil{% endblock %}
 
 {% block body %}
     <div class="container mt-4">
+        {# --- En-tête : Info utilisateur et date --- #}
         <div class="row">
             <div class="col-12 text-end">
                 <p>Date du jour : {{ "now"|date("d/m/Y") }}</p>
-                <p>Participant : {{ app.user.pseudo }}</p>
+                <p>Participant : <strong>{{ app.user.pseudo }}</strong></p>
             </div>
         </div>
 
         <h2 class="mb-4">Filtrer les sorties</h2>
 
         {# --- Section Formulaire de Recherche --- #}
-        <div class="card bg-light mb-4">
+        <div class="card bg-light mb-4 shadow-sm">
             <div class="card-body">
                 {{ form_start(form) }}
                 <div class="row">
@@ -37,16 +38,24 @@
                     <div class="col-md-4">
                         {# Checkboxes des filtres logiques #}
                         <div class="mt-4">
-                            {{ form_widget(form.isOrganisateur) }} {{ form_label(form.isOrganisateur) }} <br>
-                            {{ form_widget(form.isInscrit) }} {{ form_label(form.isInscrit) }} <br>
-                            {{ form_widget(form.isNotInscrit) }} {{ form_label(form.isNotInscrit) }} <br>
-                            {{ form_widget(form.isTerminee) }} {{ form_label(form.isTerminee) }}
+                            <div class="form-check">
+                                {{ form_widget(form.isOrganisateur) }} {{ form_label(form.isOrganisateur) }}
+                            </div>
+                            <div class="form-check">
+                                {{ form_widget(form.isInscrit) }} {{ form_label(form.isInscrit) }}
+                            </div>
+                            <div class="form-check">
+                                {{ form_widget(form.isNotInscrit) }} {{ form_label(form.isNotInscrit) }}
+                            </div>
+                            <div class="form-check">
+                                {{ form_widget(form.isTerminee) }} {{ form_label(form.isTerminee) }}
+                            </div>
                         </div>
                     </div>
 
                     <div class="col-md-3 d-flex align-items-center justify-content-center">
                         {# Bouton de soumission #}
-                        {{ form_widget(form.submit) }}
+                        {{ form_widget(form.submit, {'attr': {'class': 'btn btn-lg btn-primary w-100'}}) }}
                     </div>
                 </div>
                 {{ form_end(form) }}
@@ -55,7 +64,7 @@
 
         {# --- Tableau des Sorties --- #}
         <div class="table-responsive">
-            <table class="table table-hover table-bordered">
+            <table class="table table-hover table-bordered align-middle shadow-sm">
                 <thead class="table-dark">
                 <tr>
                     <th>Nom de la sortie</th>
@@ -72,46 +81,56 @@
                 {% for sortie in sorties %}
                     <tr>
                         <td><strong>{{ sortie.nom }}</strong></td>
-                        {# Formatage des dates avec le filtre |date #}
+
+                        {# Formatage des dates #}
                         <td>{{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</td>
                         <td>{{ sortie.dateLimiteInscription|date('d/m/Y') }}</td>
+
+                        {# Places #}
                         <td>
-                            {# Calcul de la taille de la collection des inscrits #}
                             {{ sortie.inscrits|length }} / {{ sortie.nbInscriptionsMax }}
                         </td>
-                        <td>{{ sortie.etat.libelle }}</td>
+
+                        {# État #}
+                        <td>
+                            <span class="badge bg-secondary">{{ sortie.etat.libelle }}</span>
+                        </td>
+
+                        {# Indicateur d'inscription #}
                         <td class="text-center">
-                            {# On vérifie si l'utilisateur connecté est dans la liste des inscrits #}
                             {% if app.user in sortie.inscrits %}
-                                <span class="badge bg-success">X</span>
+                                <span class="badge bg-success">Inscrit</span>
                             {% endif %}
                         </td>
+
+                        {# Organisateur #}
                         <td>
-                            {# Lien vers le profil (TO-DO :à modifier quand route définitive) #}
-                            <a href="#">{{ sortie.organisateur.pseudo }}</a>
+                            <a href="#" class="text-decoration-none fw-bold">{{ sortie.organisateur.pseudo }}</a>
                         </td>
+
+                        {# Actions #}
                         <td>
-                            {# Remplacement temporaire des routes inexistantes par # pour éviter les erreurs 500 #}
-                            <a href="#">Afficher</a>
+                            {# ✅ LIEN ACTIVÉ vers la page de détail (Étape 5) #}
+                            <a href="{{ path('app_sortie_detail', {'id': sortie.id}) }}" class="btn btn-sm btn-info text-white">Afficher</a>
 
                             {# Si l'utilisateur est l'organisateur, il peut modifier #}
                             {% if app.user == sortie.organisateur %}
-                                - <a href="#">Modifier</a>
+                                <a href="#" class="btn btn-sm btn-warning">Modifier</a>
                             {% endif %}
                         </td>
                     </tr>
                 {% else %}
                     <tr>
-                        <td colspan="8" class="text-center">Aucune sortie trouvée pour ces critères.</td>
+                        <td colspan="8" class="text-center py-4">Aucune sortie trouvée pour ces critères.</td>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
 
-        {# Bouton de création mis en lien mort pour éviter l'erreur "route does not exist" #}
-        <div class="mt-3">
-            <a href="#" class="btn btn-primary btn-lg">Créer une sortie</a>
+        {# --- Bouton Créer une sortie (Actif) --- #}
+        <div class="mt-3 mb-5">
+            <a href="{{ path('app_sortie_creer') }}" class="btn btn-primary btn-lg">Créer une sortie</a>
         </div>
     </div>
 {% endblock %}
