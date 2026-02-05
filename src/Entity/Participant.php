@@ -26,7 +26,7 @@ class Participant implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Column(length: 180)]
     private ?string $prenom = null;
 
-    #[ORM\Column(length: 15, nullable: true)]
+    #[ORM\Column(length: 20, nullable: true)]
     private ?string $telephone = null;
 
     #[ORM\Column(length: 180, unique: true)]
