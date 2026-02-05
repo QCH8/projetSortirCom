@@ -73,6 +73,23 @@ class AppFixtures extends Fixture
         $manager->persist($userAdmin);
         $participants[] = $userAdmin;
 
+        // création de deux User Non-admin
+        for($i=0; $i<2; $i++) {
+            $user = new Participant();
+            $user->setNom($faker->name());
+            $user->setActif(true);
+            $user->setAdministrateur(false);
+            $user->setCampus($campusArray[array_rand(($campusArray))]);
+            $user->setMail("random" . $i . "@eni.fr");
+            $user->setPrenom($faker->firstName());
+            // $userAdmin->setPassword("admin");
+            $user->setPassword($this->hasher->hashPassword($user, "random" . $i));
+            $user->setTelephone($faker->phoneNumber());
+            $user->setPseudo("random" . $i);
+            $manager->persist($user);
+            $participants[] = $user;
+        }
+
         //création de Participants
         for($i=1; $i<100; $i++){
             $user = new Participant();
