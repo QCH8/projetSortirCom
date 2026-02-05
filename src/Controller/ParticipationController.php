@@ -2,8 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\Etat;
 use App\Entity\Participant;
 use App\Entity\Sortie;
+use App\Repository\EtatRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -138,25 +140,60 @@ final class ParticipationController extends AbstractController
     #[Route('/sorties/{id}/publication', name: 'participation_publication', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
     public function publicationSortie(
         Sortie $sortie,
+        EtatRepository $etatRepo,
         EntityManagerInterface $manager,
         Request $request
     ): RedirectResponse
     {
         //Accès User only
-
+        $participant = $this->getUser();
+        if(!$participant){
+            $this->addFlash("error", "Vous devez être connecté.");
+            return $this->redirectToRoute("app_connexion");
+        }
         //bien une instance de Participant
-
+        if(!$participant instanceof Participant){
+            $this->addFlash("error", "Utilisateur Invalide.");
+            return $this->redirectToRoute("app_connexion");
+        }
         //bien l'organisateur de l'event
-
+        if($participant !== $sortie->getOrganisateur()){
+            $this->addFlash("error", "Vous n'êtes pas l'organisateur.");
+            return $this->redirectToRoute("app_home");
+        }
+        //todo: décommenter une fois la mise en place du token CSRF sur les pages twig
+        /*
         //Protection vs CSRF
+        //todo: verif génération du token
+        if(!$this->isCsrfTokenValid('inscrire'.$sortie->getId(), (string) $request->request->get('_token')))
+        {
+            $this->addFlash("error", "Action non autorisée (CSRF).");
+            return $this->redirectToRoute("app_home");
+        }
+        */
 
         //Vérification : la date limite inscription n'est pas dépassée.
+        $now = new \DateTimeImmutable("now", new \DateTimeZone("Europe/Paris"));
 
-        //Vérification : il reste des places dans la sortie
-
-        //Vérification : le participant n'est pas déjà inscrit
+        if($sortie->getDateLimiteInscription() <= $now){
+            $this->addFlash("error", "Pas de publication d'événements dans le passé.");
+            //todo: changement de redirect vers la page détail de la sortie
+            return $this->redirectToRoute("app_home");
+        }
+        //Vérification pas déjà publiée
+        if($sortie->getEtat() === $etatRepo->findOneBy(['libelle' => 'Ouverte'])){
+            $this->addFlash("error", "Sortie déjà publiée");
+            //todo: changement de redirect vers la page détail de la sortie
+            return $this->redirectToRoute("app_home");
+        }
 
         //Si rien n'est déclenché : on publie
+        $sortie->setEtat($etatRepo->findOneBy(['libelle' => 'Ouverte']));
+        $manager->persist($sortie);
+        $manager->flush();
+
+        $this->addFlash("success", "Sortie publiée");
+        return $this->redirectToRoute("app_home");
     }
 
 }
