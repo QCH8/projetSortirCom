@@ -4,7 +4,9 @@ namespace App\DataFixtures;
 
 use App\Entity\Campus;
 use App\Entity\Etat;
+use App\Entity\Lieu;
 use App\Entity\Participant;
+use App\Entity\Sortie;
 use App\Entity\Ville;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -34,16 +36,18 @@ class AppFixtures extends Fixture
 
         }
 
-        // Fixture de l'états
+        // Création des états
+        $etats = [];
         $etatArray = ["En création", "Ouverte", "Clôturée", "En cours", "Terminée", "Annulée", "Historisée"];
         for($i=0; $i<count($etatArray); $i++){
             $etat = new Etat();
             $etat->setLibelle($etatArray[$i]);
             $manager->persist($etat);
+            $etats[] = $etat;
         }
 
 
-        //création Campus
+        //création de Campus
         $campusArray =[];
         for($i=1; $i<5; $i++){
             $campus = new Campus();
@@ -53,7 +57,8 @@ class AppFixtures extends Fixture
             $campusArray[] = $campus;
         }
 
-        // création d'Admin et Participants
+        $participants = [];
+        // création d'Admin
         $userAdmin = new Participant();
         $userAdmin->setNom($faker->name());
         $userAdmin->setActif(true);
@@ -66,20 +71,86 @@ class AppFixtures extends Fixture
         $userAdmin->setTelephone($faker->phoneNumber());
         $userAdmin->setPseudo("Jean-Eude");
         $manager->persist($userAdmin);
+        $participants[] = $userAdmin;
 
+        // création de deux User Non-admin
+        for($i=0; $i<2; $i++) {
+            $user = new Participant();
+            $user->setNom($faker->name());
+            $user->setActif(true);
+            $user->setAdministrateur(false);
+            $user->setCampus($campusArray[array_rand(($campusArray))]);
+            $user->setMail("random" . $i . "@eni.fr");
+            $user->setPrenom($faker->firstName());
+            // $userAdmin->setPassword("admin");
+            $user->setPassword($this->hasher->hashPassword($user, "random" . $i));
+            $user->setTelephone($faker->phoneNumber());
+            $user->setPseudo("random" . $i);
+            $manager->persist($user);
+            $participants[] = $user;
+        }
+
+        //création de Participants
         for($i=1; $i<100; $i++){
             $user = new Participant();
             $user->setNom($faker->name());
             $user->setActif($faker->boolean(87));
             $user->setAdministrateur(false);
             $user->setCampus($campusArray[array_rand(($campusArray))]);
-            $user->setMail($faker->email());
+            $user->setMail($faker->unique()->safeEmail());
             $user->setPrenom($faker->firstName());
             //$user->setPassword("test" . $i);
             $user->setPassword($this->hasher->hashPassword($user, $faker->password() ));
             $user->setTelephone($faker->phoneNumber());
-            $user->setPseudo($faker->name());
+            $user->setPseudo($faker->unique()->userName());
             $manager->persist($user);
+            $participants[]=$user;
+        }
+        // création des lieux
+        $lieux = [];
+        for($i=1; $i<500; $i++){
+            $lieu = new Lieu();
+            $lieu->setNom($faker->company());
+            $lieu->setRue($faker->streetAddress() . $faker->streetName());
+            $lieu->setLatitude($faker->latitude());
+            $lieu->setLongitude($faker->longitude());
+            $lieu->setVille($villesArray[array_rand($villesArray)]);
+            $manager->persist($lieu);
+            $lieux[] = $lieu;
+        }
+
+
+        // création des sorties
+        for($i=1; $i<260; $i++){
+            $sortie = new Sortie();
+            $sortie->setNom("Anniversaire " . $faker->firstName());
+
+            $dateHeureDebutMutable = $faker->dateTimeBetween('now','+5 months',  'Europe/Paris');
+            $dateHeureDebut = \DateTimeImmutable::createFromMutable($dateHeureDebutMutable);
+            $sortie->setDateHeureDebut($dateHeureDebut);
+
+            $sortie->setDuree($faker->numberBetween(30,360));
+
+            $jours = (int) $faker->numberBetween(1,30);
+            $dateLimite = $dateHeureDebut->sub(new \DateInterval('P' . $jours . 'D'));
+            $sortie->setDateLimiteInscription($dateLimite);
+
+            $sortie->setNbInscriptionsMax($faker->numberBetween(5,25));
+            $sortie->setInfosSortie($faker->sentence(12));
+
+            $organisateur =$participants[array_rand($participants)];
+            $sortie->setOrganisateur($organisateur);
+
+            $sortie->setCampus($campusArray[array_rand($campusArray)]);
+            $sortie->setLieu($lieux[array_rand($lieux)]);
+            $sortie->setEtat($etats[array_rand($etats)]);
+
+            for($k=1; $k < $faker->numberBetween(1,$sortie->getNbInscriptionsMax());$k++){
+                $participantSortie = $participants[array_rand($participants)];
+                if($participantSortie !== $organisateur){$sortie->addInscrit($participantSortie);}
+            };
+
+            $manager->persist($sortie);
         }
 
         $manager->flush();
