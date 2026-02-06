@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} {{ participant.pseudo }} {% endblock %}
+
+{% block body %}
+    <div class="max-w-2xl mx-auto mt-10 px-4">
+        <h1 class ="text-3xl font-extrabold text-center mb-10">
+            {{ participant.pseudo }}
+        </h1>
+        <dl class="grid grid-cols-2 gap-y-6 text-lg">
+            {# Ligne Campus #}
+            <dt class="font-bold text-gray-700">Campus :</dt>
+            <dd>{{ participant.campus.nom }}</dd>
+
+            <dt class="font-bold text-gray-700">Prénom :</dt>
+            <dd>{{ participant.prenom }}</dd>
+
+            <dt class="font-bold text-gray-700">Nom :</dt>
+            <dd>{{ participant.nom }}</dd>
+
+            <dt class="font-bold text-gray-700">Téléphone :</dt>
+            <dd>{{ participant.telephone }}</dd>
+
+            <dt class="font-bold text-gray-700">Email :</dt>
+            <dd>{{ participant.email }}</dd>
+
+            {# On ajoutera les autres ici après ton test #}
+        </dl>
+    </div>
+{% endblock %}
