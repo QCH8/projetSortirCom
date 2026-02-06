@@ -119,40 +119,6 @@ class AppFixtures extends Fixture
             $lieux[] = $lieu;
         }
 
-
-        // création des sorties
-        for($i=1; $i<260; $i++){
-            $sortie = new Sortie();
-            $sortie->setNom("Anniversaire " . $faker->firstName());
-
-            $dateHeureDebutMutable = $faker->dateTimeBetween('now','+5 months',  'Europe/Paris');
-            $dateHeureDebut = \DateTimeImmutable::createFromMutable($dateHeureDebutMutable);
-            $sortie->setDateHeureDebut($dateHeureDebut);
-
-            $sortie->setDuree($faker->numberBetween(30,360));
-
-            $jours = (int) $faker->numberBetween(1,30);
-            $dateLimite = $dateHeureDebut->sub(new \DateInterval('P' . $jours . 'D'));
-            $sortie->setDateLimiteInscription($dateLimite);
-
-            $sortie->setNbInscriptionsMax($faker->numberBetween(5,25));
-            $sortie->setInfosSortie($faker->sentence(12));
-
-            $organisateur =$participants[array_rand($participants)];
-            $sortie->setOrganisateur($organisateur);
-
-            $sortie->setCampus($campusArray[array_rand($campusArray)]);
-            $sortie->setLieu($lieux[array_rand($lieux)]);
-            $sortie->setEtat($etats[array_rand($etats)]);
-
-            for($k=1; $k < $faker->numberBetween(1,$sortie->getNbInscriptionsMax());$k++){
-                $participantSortie = $participants[array_rand($participants)];
-                if($participantSortie !== $organisateur){$sortie->addInscrit($participantSortie);}
-            };
-
-            $manager->persist($sortie);
-        }
-
         $manager->flush();
     }
 }
