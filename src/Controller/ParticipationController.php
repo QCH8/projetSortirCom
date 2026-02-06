@@ -196,4 +196,70 @@ final class ParticipationController extends AbstractController
         return $this->redirectToRoute("app_home");
     }
 
+    #[Route('/sorties/{id}/annulation', name: 'participation_annulation', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    public function annulationSortie(
+        Sortie $sortie,
+        EtatRepository $etatRepo,
+        EntityManagerInterface $manager,
+        Request $request
+    ): RedirectResponse
+    {
+        //Accès User only
+        $participant = $this->getUser();
+        if(!$participant){
+            $this->addFlash("error", "Vous devez être connecté.");
+            return $this->redirectToRoute("app_connexion");
+        }
+        //bien une instance de Participant
+        if(!$participant instanceof Participant){
+            $this->addFlash("error", "Utilisateur Invalide.");
+            return $this->redirectToRoute("app_connexion");
+        }
+        //bien l'organisateur de l'event
+        if($participant !== $sortie->getOrganisateur()){
+            $this->addFlash("error", "Vous n'êtes pas l'organisateur.");
+            return $this->redirectToRoute("app_home");
+        }
+        //todo: décommenter une fois la mise en place du token CSRF sur les pages twig
+        /*
+        //Protection vs CSRF
+        //todo: verif génération du token
+        if(!$this->isCsrfTokenValid('inscrire'.$sortie->getId(), (string) $request->request->get('_token')))
+        {
+            $this->addFlash("error", "Action non autorisée (CSRF).");
+            return $this->redirectToRoute("app_home");
+        }
+        */
+
+        //Vérification : l'événement n'a pas commencé.
+        $now = new \DateTimeImmutable("now", new \DateTimeZone("Europe/Paris"));
+
+        if($sortie->getDateHeureDebut() < $now){
+            $this->addFlash("error", "Pas d'annulation d'événements déjà commencé.");
+            //todo: changement de redirect vers la page détail de la sortie
+            return $this->redirectToRoute("app_home");
+        }
+        //Vérification pas déjà annulée
+        if($sortie->getEtat() === $etatRepo->findOneBy(['libelle' => 'Annulée'])){
+            $this->addFlash("error", "Sortie déjà annulée");
+            //todo: changement de redirect vers la page détail de la sortie
+            return $this->redirectToRoute("app_home");
+        }
+
+        //Bien publiée
+        if(!($sortie->getEtat() === $etatRepo->findOneBy(['libelle' => 'Ouverte']))){
+            $this->addFlash("error", "Sortie non publiée");
+            //todo: changement de redirect vers la page détail de la sortie
+            return $this->redirectToRoute("app_home");
+        }
+
+        //Si rien n'est déclenché : on annule
+        $sortie->setEtat($etatRepo->findOneBy(['libelle' => 'Annulée']));
+        //todo: affichage twig d'un message d'annulation ? || ajout d'une colonne de message dans Sorties
+        $manager->persist($sortie);
+        $manager->flush();
+
+        $this->addFlash("success", "Sortie annulée");
+        return $this->redirectToRoute("app_home");
+    }
 }
