@@ -8,6 +8,7 @@ use App\Form\SearchSortieType;
 use App\Form\SortieType;
 use App\Repository\EtatRepository;
 use App\Repository\SortieRepository;
+use App\Services\MiseAJourEtatSortie;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,7 +18,7 @@ class SortieController extends AbstractController
 {
     // --- CREATION DE LA ROUTE ACCUEIL --- //
     #[Route('/accueil', name: 'app_accueil')]
-    public function liste(SortieRepository $sortieRepository, Request $request): Response
+    public function liste(SortieRepository $sortieRepository, Request $request, MiseAJourEtatSortie $majEtatSortie): Response
     {
         // 1. Récupération de l'utilisateur connecté (le Participant)
         /** @var Participant $utilisateur */
@@ -38,6 +39,9 @@ class SortieController extends AbstractController
         // 5. Appel de la méthode personnalisée dans le Repository
         $sorties = $sortieRepository->findSearch($utilisateur, $criteres);
 
+        //6. Mise à jour des états à l'aide du Service MiseAJourEtatSortie
+        $majEtatSortie->cloturerSiBesoinListe($sorties);
+
         return $this->render('sortie/accueil.html.twig', [
             'form' => $form->createView(),
             'sorties' => $sorties,
@@ -46,8 +50,11 @@ class SortieController extends AbstractController
 
     // --- CREATION DE LA ROUTE 'Détail d'une sortie' --- //
     #[Route('/sortie/detail/{id}', name: 'app_sortie_detail')]
-    public function detail(Sortie $sortie): Response
+    public function detail(Sortie $sortie, MiseAJourEtatSortie $majEtatSortie): Response
     {
+        //Mise à jour pour cette sortie si besoin
+        $majEtatSortie->cloturerSiBesoin($sortie);
+
         return $this->render('sortie/detail.html.twig', [
             'sortie' => $sortie
         ]);
