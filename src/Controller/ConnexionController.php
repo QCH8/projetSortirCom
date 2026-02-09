@@ -10,17 +10,17 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 class ConnexionController extends AbstractController
 {
 
-    #[Route(path: '/', name: 'app_home')]
-    public function home(AuthenticationUtils $authenticationUtils): Response{
-        return $this->render('base.html.twig');
+    #[Route(path: '/', name: 'app_accueil')]
+    public function accueil(AuthenticationUtils $authenticationUtils): Response{
+        return $this->render('accueil.html.twig');
     }
     #[Route(path: '/connexion', name: 'app_connexion')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
 
-        //todo: remplacer le placeholder 'app_home' par la route de l'"accueil"
+        //todo: remplacer le placeholder 'app_accueil' par la route de l'"accueil"
         if($this->getUser()){
-            return $this->redirectToRoute('app_home');
+            return $this->redirectToRoute('app_accueil');
         }
 
         // get the login error if there is one

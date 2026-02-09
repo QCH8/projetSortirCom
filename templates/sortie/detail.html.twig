@@ -1,0 +1,90 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} - Détail de la sortie : {{ sortie.nom }}{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h2 class="mb-4">Détail de la sortie : {{ sortie.nom }}</h2>
+
+        <div class="row">
+            {# --- Colonne Gauche : Informations de la sortie --- #}
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        Informations
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Nom de la sortie :</strong> {{ sortie.nom }}</p>
+                        <p><strong>Date et heure :</strong> {{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</p>
+                        <p><strong>Date limite d'inscription :</strong> {{ sortie.dateLimiteInscription|date('d/m/Y') }}</p>
+                        <p><strong>Nombre de places :</strong> {{ sortie.nbInscriptionsMax }}</p>
+                        <p><strong>Durée :</strong> {{ sortie.duree }} minutes</p>
+                        <p><strong>Description et infos :</strong><br>
+                            {{ sortie.infosSortie|nl2br }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mt-3">
+                    <div class="card-header bg-secondary text-white">
+                        Lieu et Ville
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Campus :</strong> {{ sortie.campus.nom }}</p>
+                        <p><strong>Lieu :</strong> {{ sortie.lieu.nom }}</p>
+                        <p><strong>Rue :</strong> {{ sortie.lieu.rue }}</p>
+                        <p><strong>Ville :</strong> {{ sortie.lieu.ville.codePostal }} {{ sortie.lieu.ville.nom }}</p>
+                        {% if sortie.lieu.latitude and sortie.lieu.longitude %}
+                            <p><strong>Latitude :</strong> {{ sortie.lieu.latitude }}</p>
+                            <p><strong>Longitude :</strong> {{ sortie.lieu.longitude }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {# --- Colonne Droite : Liste des participants --- #}
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-info text-dark">
+                        Liste des participants
+                        <span class="badge bg-light text-dark float-end">
+                            {{ sortie.inscrits|length }} / {{ sortie.nbInscriptionsMax }}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        {% if sortie.inscrits is empty %}
+                            <p class="text-muted text-center mt-3">Aucun participant inscrit pour le moment.</p>
+                        {% else %}
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Pseudo</th>
+                                    <th>Nom complet</th>
+                                    <th>Profil</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for participant in sortie.inscrits %}
+                                    <tr>
+                                        <td><strong>{{ participant.pseudo }}</strong></td>
+                                        <td>{{ participant.prenom }} {{ participant.nom|upper }}</td>
+                                        <td>
+                                            {# Lien vers le profil (à implémenter plus tard si non fait) #}
+                                            <a href="#">Voir profil</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Bouton retour #}
+        <div class="mt-4 text-center">
+            <a href="{{ path('app_accueil') }}" class="btn btn-outline-secondary">Retour à la liste</a>
+        </div>
+    </div>
+{% endblock %}
