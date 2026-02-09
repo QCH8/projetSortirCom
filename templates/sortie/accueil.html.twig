@@ -105,7 +105,7 @@
 
                         {# Organisateur #}
                         <td>
-                            <a href="#" class="text-decoration-none fw-bold">{{ sortie.organisateur.pseudo }}</a>
+                            <a href="{{ path('app_member_show', {'pseudo': sortie.organisateur.pseudo}) }}" class="text-decoration-none fw-bold">{{ sortie.organisateur.pseudo }}</a>
                         </td>
 
                         {# Actions #}
