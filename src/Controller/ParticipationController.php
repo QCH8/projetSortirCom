@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class ParticipationController extends AbstractController
 {
-    #[Route('/sortie/{id}/desinscription', name: 'participation_desinscription', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    #[Route('/sortie/{id}/desinscription', name: 'participation_desinscription', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function desinscriptionSortie(
         Sortie $sortie,
         EntityManagerInterface $manager,
@@ -36,16 +36,12 @@ final class ParticipationController extends AbstractController
             return $this->redirectToRoute("app_connexion");
         }
 
-        //todo: décommenter une fois la mise en place du token CSRF sur les pages twig
-        /*
         //Protection vs CSRF
-        //todo: verif génération du token
         if(!$this->isCsrfTokenValid('desister'.$sortie->getId(), (string) $request->request->get('_token')))
         {
             $this->addFlash("error", "Action non autorisée (CSRF).");
             return $this->redirectToRoute("app_accueil");
         }
-        */
 
         //Vérification : la sortie n'a pas déjà eu lieu
         $now = new \DateTimeImmutable("now", new \DateTimeZone("Europe/Paris"));
@@ -72,7 +68,7 @@ final class ParticipationController extends AbstractController
         return $this->redirectToRoute("app_accueil");
     }
 
-    #[Route('/sortie/{id}/inscription', name: 'participation_inscription', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    #[Route('/sortie/{id}/inscription', name: 'participation_inscription', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function inscriptionSortie(
         Sortie $sortie,
         EntityManagerInterface $manager,
@@ -94,16 +90,13 @@ final class ParticipationController extends AbstractController
             return $this->redirectToRoute("app_connexion");
         }
 
-        //todo: décommenter une fois la mise en place du token CSRF sur les pages twig
-        /*
         //Protection vs CSRF
-        //todo: verif génération du token
         if(!$this->isCsrfTokenValid('inscrire'.$sortie->getId(), (string) $request->request->get('_token')))
         {
             $this->addFlash("error", "Action non autorisée (CSRF).");
             return $this->redirectToRoute("app_accueil");
         }
-        */
+
 
         //Vérification : la date limite inscription n'est pas dépassée.
         $now = new \DateTimeImmutable("now", new \DateTimeZone("Europe/Paris"));
@@ -137,7 +130,7 @@ final class ParticipationController extends AbstractController
         return $this->redirectToRoute("app_accueil");
     }
 
-    #[Route('/sortie/{id}/publication', name: 'participation_publication', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    #[Route('/sortie/{id}/publication', name: 'participation_publication', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function publicationSortie(
         Sortie $sortie,
         EtatRepository $etatRepo,
@@ -161,16 +154,13 @@ final class ParticipationController extends AbstractController
             $this->addFlash("error", "Vous n'êtes pas l'organisateur.");
             return $this->redirectToRoute("app_accueil");
         }
-        //todo: décommenter une fois la mise en place du token CSRF sur les pages twig
-        /*
+
         //Protection vs CSRF
-        //todo: verif génération du token
         if(!$this->isCsrfTokenValid('inscrire'.$sortie->getId(), (string) $request->request->get('_token')))
         {
             $this->addFlash("error", "Action non autorisée (CSRF).");
             return $this->redirectToRoute("app_accueil");
         }
-        */
 
         //Vérification : la date limite inscription n'est pas dépassée.
         $now = new \DateTimeImmutable("now", new \DateTimeZone("Europe/Paris"));
@@ -196,7 +186,7 @@ final class ParticipationController extends AbstractController
         return $this->redirectToRoute("app_accueil");
     }
 
-    #[Route('/sortie/{id}/annulation', name: 'participation_annulation', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    #[Route('/sortie/{id}/annulation', name: 'participation_annulation', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function annulationSortie(
         Sortie $sortie,
         EtatRepository $etatRepo,
@@ -220,16 +210,14 @@ final class ParticipationController extends AbstractController
             $this->addFlash("error", "Vous n'êtes pas l'organisateur.");
             return $this->redirectToRoute("app_accueil");
         }
-        //todo: décommenter une fois la mise en place du token CSRF sur les pages twig
-        /*
+
         //Protection vs CSRF
-        //todo: verif génération du token
         if(!$this->isCsrfTokenValid('inscrire'.$sortie->getId(), (string) $request->request->get('_token')))
         {
             $this->addFlash("error", "Action non autorisée (CSRF).");
             return $this->redirectToRoute("app_accueil");
         }
-        */
+
 
         //Vérification : l'événement n'a pas commencé.
         $now = new \DateTimeImmutable("now", new \DateTimeZone("Europe/Paris"));
@@ -255,7 +243,6 @@ final class ParticipationController extends AbstractController
 
         //Si rien n'est déclenché : on annule
         $sortie->setEtat($etatRepo->findOneBy(['libelle' => 'Annulée']));
-        //todo: affichage twig d'un message d'annulation ? || ajout d'une colonne de message dans Sorties
         $manager->persist($sortie);
         $manager->flush();
 

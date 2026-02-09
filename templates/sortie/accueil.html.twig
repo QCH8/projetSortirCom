@@ -122,7 +122,14 @@
                                 and sortie.etat.libelle == "Ouverte"
                                 and sortie.dateHeureDebut > date('now', 'Europe/Paris')
                             %}
-                                <a href="{{ path('participation_annulation', { 'id': sortie.id }) }}">Annuler</a>
+                                {# <a href="{{ path('participation_annulation', { 'id': sortie.id }) }}">Annuler</a>  #}
+                                <form method="post" action="{{ path('participation_annulation', {'id': sortie.id}) }}" style="display: inline">
+                                    <input type="hidden" name="token" value="{{ csrf_token('annuler' ~ sortie.id) }}">
+                                    <button type="submit" onclick="return confirm('Confirmer l\'annulation de cette sortie ?');">
+                                        Annuler
+                                    </button>
+
+                                </form>
                             {% endif %}
 
                             {# INSCRIT : Se désister - si Sortie pas commencée #}
@@ -130,18 +137,29 @@
                                 and app.user in sortie.inscrits
                                 and sortie.dateHeureDebut > date('now', 'Europe/Paris')
                             %}
-                                <a href="{{ path('participation_desinscription', { 'id': sortie.id }) }}">Se désister</a>
+                                {# <a href="{{ path('participation_desinscription', { 'id': sortie.id }) }}">Se désister</a> #}
+                                <form method="post" action="{{ path('participation_desinscription', {'id': sortie.id}) }}" style="display:inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('desister' ~ sortie.id) }}">
+                                    <button type="submit" onclick="return confirm('Confirmer votre désinscription ?');">
+                                        Se désister
+                                    </button>
+                                </form>
                             {% endif %}
 
                             {# NON INSCRIT : S'inscrire - si Sortie pas commencée et a de la place + est ouverte #}
                             {% if app.user != sortie.organisateur
                                 and not (app.user in sortie.inscrits)
-                                and sortie.nbInscriptionsMax
                                 and sortie.etat.libelle == "Ouverte"
-                                and sortie.dateHeureDebut > date('now', 'Europe/Paris')
+                                and sortie.dateLimiteInscription > date('now', 'Europe/Paris')
                                 and sortie.inscrits|length < sortie.nbInscriptionsMax
                             %}
-                                <a href="{{ path('participation_inscription', { 'id': sortie.id }) }}">S'inscrire</a>
+                                {# <a href="{{ path('participation_inscription', { 'id': sortie.id }) }}">S'inscrire</a> #}
+                                <form method="post" action="{{ path('participation_inscription', {'id': sortie.id}) }}" style="display:inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('inscrire' ~ sortie.id) }}">
+                                    <button type="submit">
+                                        S'inscrire
+                                    </button>
+                                </form>
                             {% endif %}
 
 
