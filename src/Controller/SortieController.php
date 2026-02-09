@@ -20,6 +20,18 @@ class SortieController extends AbstractController
     #[Route('/accueil', name: 'app_accueil')]
     public function liste(SortieRepository $sortieRepository, Request $request, MiseAJourEtatSortie $majEtatSortie): Response
     {
+        //Accès User only
+        $participant = $this->getUser();
+        if(!$participant){
+            $this->addFlash("error", "Vous devez être connecté.");
+            return $this->redirectToRoute("app_connexion");
+        }
+        //bien une instance de Participant
+        if(!$participant instanceof Participant){
+            $this->addFlash("error", "Utilisateur Invalide.");
+            return $this->redirectToRoute("app_connexion");
+        }
+
         // 1. Récupération de l'utilisateur connecté (le Participant)
         /** @var Participant $utilisateur */
         $utilisateur = $this->getUser();
@@ -52,6 +64,18 @@ class SortieController extends AbstractController
     #[Route('/sortie/detail/{id}', name: 'app_sortie_detail')]
     public function detail(Sortie $sortie, MiseAJourEtatSortie $majEtatSortie): Response
     {
+        //Accès User only
+        $participant = $this->getUser();
+        if(!$participant){
+            $this->addFlash("error", "Vous devez être connecté.");
+            return $this->redirectToRoute("app_connexion");
+        }
+        //bien une instance de Participant
+        if(!$participant instanceof Participant){
+            $this->addFlash("error", "Utilisateur Invalide.");
+            return $this->redirectToRoute("app_connexion");
+        }
+
         //Mise à jour pour cette sortie si besoin
         $majEtatSortie->synchroniserSiBesoin($sortie);
 
@@ -64,6 +88,18 @@ class SortieController extends AbstractController
     #[Route('/sortie/creer', name: 'app_sortie_creer')]
     public function creer(Request $request, EntityManagerInterface $entityManager, EtatRepository $etatRepository): Response
     {
+        //Accès User only
+        $participant = $this->getUser();
+        if(!$participant){
+            $this->addFlash("error", "Vous devez être connecté.");
+            return $this->redirectToRoute("app_connexion");
+        }
+        //bien une instance de Participant
+        if(!$participant instanceof Participant){
+            $this->addFlash("error", "Utilisateur Invalide.");
+            return $this->redirectToRoute("app_connexion");
+        }
+
         // 1. On crée une instance vide
         $sortie = new Sortie();
 
