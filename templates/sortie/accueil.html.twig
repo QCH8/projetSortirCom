@@ -125,7 +125,7 @@
                                 {# <a href="{{ path('participation_annulation', { 'id': sortie.id }) }}">Annuler</a>  #}
                                 <form method="post" action="{{ path('participation_annulation', {'id': sortie.id}) }}" style="display: inline">
                                     <input type="hidden" name="token" value="{{ csrf_token('annuler' ~ sortie.id) }}">
-                                    <button type="submit" onclick="return confirm('Confirmer l\'annulation de cette sortie ?');">
+                                    <button type="submit" class="px-3 py-1 rounded border cursor-pointer" onclick="return confirm('Confirmer l\'annulation de cette sortie ?');">
                                         Annuler
                                     </button>
 
@@ -140,7 +140,7 @@
                                 {# <a href="{{ path('participation_desinscription', { 'id': sortie.id }) }}">Se désister</a> #}
                                 <form method="post" action="{{ path('participation_desinscription', {'id': sortie.id}) }}" style="display:inline">
                                     <input type="hidden" name="_token" value="{{ csrf_token('desister' ~ sortie.id) }}">
-                                    <button type="submit" onclick="return confirm('Confirmer votre désinscription ?');">
+                                    <button type="submit" class="px-3 py-1 rounded border cursor-pointer" onclick="return confirm('Confirmer votre désinscription ?');">
                                         Se désister
                                     </button>
                                 </form>
@@ -156,7 +156,7 @@
                                 {# <a href="{{ path('participation_inscription', { 'id': sortie.id }) }}">S'inscrire</a> #}
                                 <form method="post" action="{{ path('participation_inscription', {'id': sortie.id}) }}" style="display:inline">
                                     <input type="hidden" name="_token" value="{{ csrf_token('inscrire' ~ sortie.id) }}">
-                                    <button type="submit">
+                                    <button type="submit" class="px-3 py-1 rounded border cursor-pointer">
                                         S'inscrire
                                     </button>
                                 </form>
