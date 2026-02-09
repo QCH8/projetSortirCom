@@ -209,4 +209,18 @@ class Sortie
 
         return $this;
     }
+
+    public function isHistorisee(): bool
+    {
+        $unMoisDernier = new \DateTimeImmutable('-1 month');
+        $libelleEtat = $this->getEtat()->getLibelle();
+
+        // Condition 1 : Elle est déjà marquée "Historisée" en base de données
+        if ($libelleEtat === 'Historisée') {
+            return true;
+        }
+
+        // Condition 2 : Elle est "Terminée" ET elle a commencé il y a plus d'un mois
+        return $libelleEtat === 'Terminée' && $this->getDateHeureDebut() < $unMoisDernier;
+    }
 }
