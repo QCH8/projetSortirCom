@@ -70,7 +70,7 @@
                                         <td>{{ participant.prenom }} {{ participant.nom|upper }}</td>
                                         <td>
                                             {# Lien vers le profil (à implémenter plus tard si non fait) #}
-                                            <a href="#">Voir profil</a>
+                                            <a href="{{ path('app_member_show', {'pseudo': participant.pseudo}) }}">Voir profil</a>
                                         </td>
                                     </tr>
                                 {% endfor %}

@@ -30,6 +30,12 @@ class MiseAJourEtatSortie
         $maxAtteint = count($sortie->getInscrits()) >= $sortie->getNbInscriptionsMax();
         $dateLimiteDepassee = $sortie->getDateLimiteInscription() <= $now;
         $etatActuel = $sortie->getEtat()?->getId();
+        $etatActuelLabel = $sortie->getEtat()?->getLibelle();
+
+        // Si la sortie est déjà dans un état final, on ne touche à rien
+        if (in_array($etatActuelLabel, ['Terminée', 'Annulée', 'Historisée', 'En création'])) {
+            return false;
+        }
         //Si la date limite est dépassée ou le nombre d'inscritMax est atteint → Cloture de l'event
         if (($maxAtteint || $dateLimiteDepassee) && $etatActuel !== $etatCloturee->getId()){
             $sortie->setEtat($etatCloturee);
@@ -61,12 +67,24 @@ class MiseAJourEtatSortie
         //Si pas ces états en BDD → on ne fait rien
         if(!$etatOuverte || !$etatCloturee){ return 0;}
 
+        // Liste des états FINAUX qu'on ne doit JAMAIS modifier automatiquement
+        $etatsBannis = ['Terminée', 'Annulée', 'Historisée', 'En création'];
+
         $sorties = $cible instanceof Sortie ? [$cible]: $cible;
 
         $changed = 0;
         //Verif bien que l'on est bien sur des instances de Sortie
         foreach($sorties as $sortie){
             if (!$sortie instanceof Sortie){
+                continue;
+            }
+
+            $maxAtteint = count($sortie->getInscrits()) >= $sortie->getNbInscriptionsMax();
+            $dateLimiteDepassee = $sortie->getDateLimiteInscription() <= $now;
+            $etatActuelLabel = $sortie->getEtat()->getLibelle();
+            
+            // Si la sortie est déjà dans un état final, on passe à la suivante
+            if (in_array($etatActuelLabel, $etatsBannis)) {
                 continue;
             }
 
