@@ -13,6 +13,10 @@
     </head>
     <body class="bg-slate-100 text-gray-900">
 
+    {% block navbar %}
+        {% include 'partials/_navbar.html.twig' %}
+    {% endblock %}
+
         {# Section des messages Flash #}
         <div class="max-w-2xl mx-auto px-4 mt-6">
             {% for label, messages in app.flashes %}
