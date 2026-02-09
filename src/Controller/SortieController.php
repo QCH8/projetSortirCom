@@ -40,7 +40,7 @@ class SortieController extends AbstractController
         $sorties = $sortieRepository->findSearch($utilisateur, $criteres);
 
         //6. Mise à jour des états à l'aide du Service MiseAJourEtatSortie
-        $majEtatSortie->cloturerSiBesoinListe($sorties);
+        $majEtatSortie->synchroniserSiBesoinListe($sorties);
 
         return $this->render('sortie/accueil.html.twig', [
             'form' => $form->createView(),
@@ -53,7 +53,7 @@ class SortieController extends AbstractController
     public function detail(Sortie $sortie, MiseAJourEtatSortie $majEtatSortie): Response
     {
         //Mise à jour pour cette sortie si besoin
-        $majEtatSortie->cloturerSiBesoin($sortie);
+        $majEtatSortie->synchroniserSiBesoin($sortie);
 
         return $this->render('sortie/detail.html.twig', [
             'sortie' => $sortie
