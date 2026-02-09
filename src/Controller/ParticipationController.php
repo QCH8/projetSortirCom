@@ -156,7 +156,7 @@ final class ParticipationController extends AbstractController
         }
 
         //Protection vs CSRF
-        if(!$this->isCsrfTokenValid('inscrire'.$sortie->getId(), (string) $request->request->get('_token')))
+        if(!$this->isCsrfTokenValid('publier'.$sortie->getId(), (string) $request->request->get('_token')))
         {
             $this->addFlash("error", "Action non autorisée (CSRF).");
             return $this->redirectToRoute("app_accueil");
@@ -212,7 +212,7 @@ final class ParticipationController extends AbstractController
         }
 
         //Protection vs CSRF
-        if(!$this->isCsrfTokenValid('inscrire'.$sortie->getId(), (string) $request->request->get('_token')))
+        if(!$this->isCsrfTokenValid('annuler'.$sortie->getId(), (string) $request->request->get('_token')))
         {
             $this->addFlash("error", "Action non autorisée (CSRF).");
             return $this->redirectToRoute("app_accueil");
