@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+<h1>Gestion des utilisateurs</h1>
+
+{{ form_start(form) }}
+    {{ form_row(form.campus) }}
+    {{ form_row(form.nom) }}
+    {{ form_row(form.actifSeulement) }}
+    {{ form_row(form.submit) }}
+{{ form_end(form) }}
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Nom</th>
+        <th>Prénom</th>
+        <th>Email</th>
+        <th>Campus</th>
+        <th>Actif</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+        {% for p in participants %}
+        <tr>
+            <td>{{ p.nom }}</td>
+            <td>{{ p.prenom }}</td>
+            <td>{{ p.mail }}</td>
+            <td>{{ p.campus ? p.campus.nom : '-' }}</td>
+            <td>{{ p.actif ? 'Oui' : 'Non' }}</td>
+            <td class="d-flex gap-2">
+                {# Edit #}
+                <a class="btn btn-sm btn-secondary" href="{{ path('admin_user_edit', {id: p.id}) }}">Modifier</a>
+                {# Activation // Désactivation#}
+                <form method="post" action="{{ path('admin_user_toggle', {id: p.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('toggle_actif_' ~ p.id) }}">
+                    <button class="btn btn-warning" type="submit">
+                        {{ p.actif ? 'Rendre inactif' : 'Rendre actif' }}
+                    </button>
+                </form>
+                {# Delete #}
+                <form method="post" action="{{ path('admin_user_delete', {id: p.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete_user_' ~ p.id) }}">
+                    <button class="btn btn-sm btn-danger" type="submit">
+                        Supprimer
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+            <tr><td colspan="7">Aucun utilisateur</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

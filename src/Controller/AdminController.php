@@ -23,7 +23,7 @@ final class AdminController extends AbstractController
         ]);
     }
 
-    #[Route('/admin/gestion_utilisateurs', name: 'admin_users')]
+    #[Route('/admin/gestion_utilisateurs', name: 'admin_users', methods: ['GET'])]
     public function listUsers(
         Request $request,
         AdminUserService $adminUserService,
@@ -40,7 +40,7 @@ final class AdminController extends AbstractController
 
         return $this->render('admin/users/listing.html.twig', [
             'form' => $form->createView(),
-            'participant' => $participants,
+            'participants' => $participants,
         ]);
     }
 

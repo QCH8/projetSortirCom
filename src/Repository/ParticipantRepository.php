@@ -41,16 +41,16 @@ class ParticipantRepository extends ServiceEntityRepository implements UserLoade
             ->leftJoin('p.campus', 'c')->addSelect('c')
             ->orderBy('p.nom', 'ASC');
 
-        if($search->campus){
-            $baseRequete->andWhere('p.campus = :campus')->setParameter('campus', $search->campus);
+        if($search->getCampus()){
+            $baseRequete->andWhere('p.campus = :campus')->setParameter('campus', $search->getCampus());
         }
 
-        if($search->nom){
+        if($search->getNom()){
             $baseRequete->andWhere('LOWER(p.nom) LIKE :q OR LOWER(p.prenom) LIKE :q OR LOWER(p.email) LIKE :q')
-                ->setParameter('q', '%'.mb_strtolower(trim($search->nom)).'%');
+                ->setParameter('q', '%'.mb_strtolower(trim($search->getNom())).'%');
         }
 
-        if($search->actifsSeulement === true){
+        if($search->getActifSeulement() === true){
             $baseRequete->andWhere('p.actif = true');
         }
         return $baseRequete->getQuery()->getResult();
