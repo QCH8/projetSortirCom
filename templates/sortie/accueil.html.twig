@@ -151,12 +151,64 @@
                                         and sortie.getEtat().getLibelle() == "Ouverte"
                                         and sortie.dateHeureDebut > date()
                                     %}
-                                        <form method="post" action="{{ path('participation_annulation', {'id': sortie.id}) }}" class="inline-block">
+                                        {# Ouverture de modal #}
+                                        <button type="button"
+                                            class="text-red-600 hover:text-red-900 hover:underline bg-transparent border-none cursor-pointer"
+                                            data-modal-open="annulation-{{ sortie.id }}">
+                                            Annuler
+                                        </button>
+
+                                        {# Modal cachée par défaut #}
+                                        <div id="annulation-{{ sortie.id }}"
+                                        class="fixed inset-0 z-50 hidden items-center justify-center"
+                                        aria-hidden="true">
+                                            {# Overlay #}
+                                            <div class="absolute inset-0 bg-black/50" data-modal-close></div>
+                                            {# Contenu #}
+                                            <div class="relative w-full max-w-lg mx-4 rounded-xl bg-white shadow-lg">
+                                                <div class="p-4 border-b">
+                                                    <h3 class="text-lg font-semibold">Justifier l’annulation</h3>
+                                                    <p class="text-sm text-gray-600 mt-1">
+                                                        Merci d’indiquer la raison (elle sera visible aux participants).
+                                                    </p>
+                                                </div>
+
+                                                <form method="post"
+                                                      action="{{ path('participation_annulation', {'id': sortie.id}) }}"
+                                                      class="p-4 space-y-4">
+                                                    <label for="messageAnnulation-{{ sortie.id }}" class="block text-sm font-medium text-gray-700">Motifs d'annulation</label>
+                                                    <textarea id="messageAnnulation-{{ sortie.id }}"
+                                                              name="messageAnnulation"
+                                                              rows="5"
+                                                              maxlength="255"
+                                                              required
+                                                              class="w-full rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring focus:ring-red-200"
+                                                              placeholder="Ex : météo défavorable, imprévu, problème de logistique..."></textarea>
+
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('annuler' ~ sortie.id) }}">
+
+                                                    <div class="flex justify-end gap-2 pt-2">
+                                                        <button type="button"
+                                                                class="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50"
+                                                                data-modal-close>
+                                                            Retour
+                                                        </button>
+
+                                                        <button type="submit"
+                                                                class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700">
+                                                            Confirmer
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+
+                                        {# <form method="post" action="{{ path('participation_annulation', {'id': sortie.id}) }}" class="inline-block">
                                             <input type="hidden" name="_token" value="{{ csrf_token('annuler' ~ sortie.id) }}">
-                                            <button type="submit" class="text-red-600 hover:text-red-900 hover:underline bg-transparent border-none cursor-pointer" onclick="return confirm('Confirmer l\'annulation de cette sortie ?');">
+                                            <button type="submit" class="text-red-600 hover:text-red-900 hover:underline bg-transparent border-none cursor-pointer">
                                                 Annuler
                                             </button>
-                                        </form>
+                                        </form> #}
                                     {% endif %}
 
                                     {% if app.user != sortie.organisateur
@@ -209,4 +261,48 @@
             </a>
         </div>
     </div>
+
+    <script>
+        function openModal(modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            modal.setAttribute('aria-hidden', 'false');
+
+            const textarea = modal.querySelector('textarea');
+            if (textarea) textarea.focus();
+
+            document.body.classList.add('overflow-hidden'); // empeche scroll en background
+        }
+
+        function closeModal(modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            modal.setAttribute('aria-hidden', 'true');
+
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        document.addEventListener('click', (e) => {
+            const openBtn = e.target.closest('[data-modal-open]');
+            if (openBtn) {
+                const id = openBtn.getAttribute('data-modal-open');
+                const modal = document.getElementById(id);
+                if (modal) openModal(modal);
+                return;
+            }
+
+            // fermeture modal si click sur overlay ou élément marqué data-modal-close
+            const closeEl = e.target.closest('[data-modal-close]');
+            if (closeEl) {
+                const modal = closeEl.closest('.fixed.inset-0.z-50');
+                if (modal) closeModal(modal);
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.fixed.inset-0.z-50:not(.hidden)').forEach(closeModal);
+            }
+        });
+    </script>
 {% endblock %}
