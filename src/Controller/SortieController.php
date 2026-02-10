@@ -61,7 +61,7 @@ class SortieController extends AbstractController
     }
 
     // --- CREATION DE LA ROUTE 'Détail d'une sortie' --- //
-    #[Route('/sortie/detail/{id}', name: 'app_sortie_detail')]
+    #[Route('/sortie/detail/{id}', name: 'app_sortie_detail', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function detail(Sortie $sortie, MiseAJourEtatSortie $majEtatSortie): Response
     {
         //Accès User only
@@ -85,7 +85,7 @@ class SortieController extends AbstractController
     }
 
     // --- CREATION DE LA ROUTE "Créer une sortie" --- //
-    #[Route('/sortie/creer', name: 'app_sortie_creer')]
+    #[Route('/sortie/creer', name: 'app_sortie_creer', methods: ['GET'])]
     public function creer(Request $request, EntityManagerInterface $entityManager, EtatRepository $etatRepository): Response
     {
         //Accès User only
