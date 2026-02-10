@@ -8,7 +8,6 @@ use App\Entity\Ville;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -19,6 +18,8 @@ class SortieType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $now = new \DateTimeImmutable();
+
         $builder
             // Nom de l'événement
             ->add('nom', TextType::class, [
@@ -29,12 +30,18 @@ class SortieType extends AbstractType
                 'label' => 'Date et heure de la sortie',
                 'widget' => 'single_text',
                 'required' => true,
+                'attr' => [
+                    'min' => $now->format('Y-m-d\TH:i')
+                ]
             ])
             // Date limite pour s'inscrire
-            ->add('dateLimiteInscription', DateType::class, [
+            ->add('dateLimiteInscription', DateTimeType::class, [
                 'label' => 'Date limite d\'inscription',
                 'widget' => 'single_text',
                 'required' => true,
+                'attr' => [
+                    'min' => $now->format('Y-m-d\TH:i')
+                ]
             ])
             // Nombre de places disponibles
             ->add('nbInscriptionsMax', IntegerType::class, [
@@ -44,7 +51,7 @@ class SortieType extends AbstractType
             // Durée de l'activité
             ->add('duree', IntegerType::class, [
                 'label' => 'Durée (en minutes)',
-                'attr' => ['step' => 15]
+                'attr' => ['step' => 15, 'min' => 0]
             ])
             // Description libre
             ->add('infosSortie', TextareaType::class, [
