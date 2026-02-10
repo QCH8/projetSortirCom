@@ -1,111 +1,197 @@
 {% extends 'base.html.twig' %}
 
-{# Titre de l'onglet du navigateur #}
 {% block title %}Détail de la sortie - {{ sortie.nom }}{% endblock %}
 
 {% block body %}
-    <div class="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg mt-10 mb-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-        {# Titre de la page #}
-        <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">
-            Afficher une sortie
-        </h1>
+        {# --- En-tête : Titre + Bouton Retour --- #}
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+            <h1 class="text-3xl font-extrabold text-gray-900 mb-4 md:mb-0">
+                {{ sortie.nom }}
+            </h1>
+            <a href="{{ path('app_accueil') }}" class="text-blue-600 hover:text-blue-800 font-medium hover:underline flex items-center">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Retour à la liste
+            </a>
+        </div>
 
-        {# Grille responsive : 1 colonne sur mobile, 2 colonnes sur écran large #}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 mb-8">
+        {# --- Grille principale --- #}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-            {# === COLONNE GAUCHE : Infos de la sortie === #}
-            <div class="space-y-4">
-                <div class="flex justify-between border-b border-gray-100 pb-2">
-                    <span class="font-semibold text-gray-700">Nom de la sortie :</span>
-                    <span class="text-gray-900">{{ sortie.nom }}</span>
+            {# === CARTE 1 : Informations de la sortie === #}
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-200">
+                <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Informations générales</h3>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">Détails de l'événement.</p>
                 </div>
-
-                <div class="flex justify-between border-b border-gray-100 pb-2">
-                    <span class="font-semibold text-gray-700">Date et heure :</span>
-                    <span class="text-gray-900">{{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</span>
-                </div>
-
-                <div class="flex justify-between border-b border-gray-100 pb-2">
-                    <span class="font-semibold text-gray-700">Date limite :</span>
-                    <span class="text-gray-900">{{ sortie.dateLimiteInscription|date('d/m/Y') }}</span>
-                </div>
-
-                <div class="flex justify-between border-b border-gray-100 pb-2">
-                    <span class="font-semibold text-gray-700">Places :</span>
-                    <span class="text-gray-900">{{ sortie.nbInscriptionsMax }}</span>
-                </div>
-
-                <div class="flex justify-between border-b border-gray-100 pb-2">
-                    <span class="font-semibold text-gray-700">Durée :</span>
-                    <span class="text-gray-900">{{ sortie.duree }} minutes</span>
-                </div>
-
-                <div class="flex flex-col pt-2">
-                    <span class="font-semibold text-gray-700 mb-1">Description et infos :</span>
-                    <p class="text-gray-600 text-sm bg-gray-50 p-3 rounded">
-                        {{ sortie.infosSortie|default('Aucune description fournie.') }}
-                    </p>
+                <div class="px-4 py-5 sm:p-6 space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="text-sm font-medium text-gray-500">Date et heure</div>
+                        <div class="sm:col-span-2 text-sm text-gray-900 font-semibold">{{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="text-sm font-medium text-gray-500">Date limite</div>
+                        <div class="sm:col-span-2 text-sm text-gray-900">{{ sortie.dateLimiteInscription|date('d/m/Y') }}</div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="text-sm font-medium text-gray-500">Places</div>
+                        <div class="sm:col-span-2 text-sm text-gray-900">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {{ sortie.inscrits|length }} / {{ sortie.nbInscriptionsMax }} inscrits
+                            </span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="text-sm font-medium text-gray-500">Durée</div>
+                        <div class="sm:col-span-2 text-sm text-gray-900">{{ sortie.duree }} minutes</div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="text-sm font-medium text-gray-500">État</div>
+                        <div class="sm:col-span-2">
+                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                {% if sortie.etat.libelle == 'Ouverte' %}bg-green-100 text-green-800
+                                {% elseif sortie.etat.libelle == 'Annulée' %}bg-red-100 text-red-800
+                                {% elseif sortie.etat.libelle == 'En création' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ sortie.etat.libelle }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="border-t border-gray-100 pt-4">
+                        <div class="text-sm font-medium text-gray-500 mb-2">Description</div>
+                        <div class="text-sm text-gray-700 bg-gray-50 p-3 rounded-md border border-gray-100">
+                            {{ sortie.infosSortie|default('Aucune description fournie.')|nl2br }}
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {# === COLONNE DROITE : Infos Lieu & Campus === #}
-            <div class="space-y-4">
-                <div class="flex justify-between border-b border-gray-100 pb-2">
-                    <span class="font-semibold text-gray-700">Campus :</span>
-                    <span class="text-gray-900">{{ sortie.campus.nom }}</span>
+            {# === CARTE 2 : Lieu & Actions === #}
+            <div class="space-y-8">
+
+                {# Bloc Lieu #}
+                <div class="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-200">
+                    <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Localisation</h3>
+                        <p class="mt-1 max-w-2xl text-sm text-gray-500">Où se déroule la sortie ?</p>
+                    </div>
+                    <div class="px-4 py-5 sm:p-6 space-y-4">
+                        <div class="flex justify-between border-b border-gray-100 pb-2">
+                            <span class="text-sm font-medium text-gray-500">Campus</span>
+                            <span class="text-sm text-gray-900 font-bold">{{ sortie.campus.nom }}</span>
+                        </div>
+                        <div class="flex justify-between border-b border-gray-100 pb-2">
+                            <span class="text-sm font-medium text-gray-500">Lieu</span>
+                            <span class="text-sm text-gray-900">{{ sortie.lieu.nom }}</span>
+                        </div>
+                        <div class="flex justify-between border-b border-gray-100 pb-2">
+                            <span class="text-sm font-medium text-gray-500">Rue</span>
+                            <span class="text-sm text-gray-900">{{ sortie.lieu.rue }}</span>
+                        </div>
+                        <div class="flex justify-between border-b border-gray-100 pb-2">
+                            <span class="text-sm font-medium text-gray-500">Ville</span>
+                            <span class="text-sm text-gray-900">{{ sortie.lieu.ville.codePostal }} {{ sortie.lieu.ville.nom }}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 pt-2">
+                            <div>
+                                <span class="block text-xs text-gray-400">Latitude</span>
+                                <span class="block text-sm text-gray-700">{{ sortie.lieu.latitude }}</span>
+                            </div>
+                            <div>
+                                <span class="block text-xs text-gray-400">Longitude</span>
+                                <span class="block text-sm text-gray-700">{{ sortie.lieu.longitude }}</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="flex justify-between border-b border-gray-100 pb-2">
-                    <span class="font-semibold text-gray-700">Lieu :</span>
-                    <span class="text-gray-900">{{ sortie.lieu.nom }}</span>
-                </div>
+                {# Bloc Actions (Inscriptions / Modif) #}
+                <div class="bg-white shadow sm:rounded-lg border border-gray-200 p-6 flex flex-col items-center justify-center space-y-4">
+                    <h3 class="text-lg font-medium text-gray-900">Actions</h3>
 
-                <div class="flex justify-between border-b border-gray-100 pb-2">
-                    <span class="font-semibold text-gray-700">Rue :</span>
-                    <span class="text-gray-900">{{ sortie.lieu.rue }}</span>
-                </div>
+                    <div class="flex flex-wrap justify-center gap-4">
+                        {# Logique identique à la page d'accueil #}
 
-                <div class="flex justify-between border-b border-gray-100 pb-2">
-                    <span class="font-semibold text-gray-700">Code postal :</span>
-                    <span class="text-gray-900">
-                        {{ sortie.lieu.ville.codePostal }} {{ sortie.lieu.ville.nom }}
-                    </span>
-                </div>
+                        {# Modifier (Organisateur & En création) #}
+                        {% if app.user == sortie.organisateur and sortie.etat.libelle == 'En création' %}
+                            <a href="#" class="px-4 py-2 border border-yellow-500 text-yellow-600 rounded-md hover:bg-yellow-50 font-medium">Modifier la sortie</a>
+                            <a href="#" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium">Publier</a>
+                        {% endif %}
 
-                <div class="flex justify-between border-b border-gray-100 pb-2">
-                    <span class="font-semibold text-gray-700">Latitude :</span>
-                    <span class="text-gray-900">{{ sortie.lieu.latitude }}</span>
-                </div>
+                        {# S'inscrire #}
+                        {% if app.user != sortie.organisateur
+                            and not (app.user in sortie.inscrits)
+                            and sortie.etat.libelle == "Ouverte"
+                            and sortie.dateLimiteInscription > date('now')
+                            and sortie.inscrits|length < sortie.nbInscriptionsMax
+                        %}
+                            <form method="post" action="{{ path('participation_inscription', {'id': sortie.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('inscrire' ~ sortie.id) }}">
+                                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-bold shadow-sm">
+                                    S'inscrire
+                                </button>
+                            </form>
+                        {% endif %}
 
-                <div class="flex justify-between border-b border-gray-100 pb-2">
-                    <span class="font-semibold text-gray-700">Longitude :</span>
-                    <span class="text-gray-900">{{ sortie.lieu.longitude }}</span>
+                        {# Se désister #}
+                        {% if app.user != sortie.organisateur
+                            and app.user in sortie.inscrits
+                            and sortie.dateHeureDebut > date('now')
+                        %}
+                            <form method="post" action="{{ path('participation_desinscription', {'id': sortie.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('desister' ~ sortie.id) }}">
+                                <button type="submit" class="px-6 py-2 border border-red-500 text-red-600 rounded-md hover:bg-red-50 font-bold" onclick="return confirm('Se désister ?');">
+                                    Se désister
+                                </button>
+                            </form>
+                        {% endif %}
+
+                        {# Annuler (Organisateur) #}
+                        {% if app.user == sortie.organisateur
+                            and sortie.etat.libelle == "Ouverte"
+                            and sortie.dateHeureDebut > date('now')
+                        %}
+                            <form method="post" action="{{ path('participation_annulation', {'id': sortie.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('annuler' ~ sortie.id) }}">
+                                <button type="submit" class="px-4 py-2 text-red-600 hover:text-red-800 hover:underline text-sm font-medium" onclick="return confirm('Annuler cette sortie ?');">
+                                    Annuler la sortie
+                                </button>
+                            </form>
+                        {% endif %}
+
+                        {# Cas où aucune action n'est possible (ex: clôturée et pas inscrit) #}
+                        {% if sortie.etat.libelle != 'En création' and sortie.etat.libelle != 'Ouverte' and not (app.user in sortie.inscrits) %}
+                            <span class="text-gray-500 italic">Les inscriptions sont closes.</span>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
 
-        {# === LISTE DES PARTICIPANTS === #}
+        {# === Liste des participants === #}
         <div class="mt-10">
             <h2 class="text-xl font-bold text-gray-800 mb-4 pb-2 border-b-2 border-blue-500 inline-block">
                 Liste des participants inscrits
             </h2>
 
-            <div class="overflow-x-auto shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+            <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
                 <table class="min-w-full divide-y divide-gray-300">
                     <thead class="bg-gray-50">
                     <tr>
-                        <th scope="col" class="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">Pseudo</th>
+                        <th scope="col" class="py-3.5 px-3 text-left text-sm font-semibold text-gray-900 pl-6">Pseudo</th>
                         <th scope="col" class="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">Nom complet</th>
                     </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 bg-white">
-                    {# Boucle sur la collection 'inscrits' de l'entité Sortie #}
                     {% for participant in sortie.inscrits %}
                         <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-blue-600 sm:pl-6">
-                                {# Lien vers le profil via MemberController (route: app_member_show) #}
-                                <a href="{{ path('app_member_show', {'pseudo': participant.pseudo}) }}" class="hover:underline">
+                            <td class="whitespace-nowrap py-4 pl-6 pr-3 text-sm font-medium text-blue-600">
+                                <a href="{{ path('app_member_show', {'pseudo': participant.pseudo}) }}" class="hover:underline flex items-center">
+                                    {# Avatar placeholder optionnel #}
+                                    <span class="inline-block h-6 w-6 rounded-full overflow-hidden bg-gray-100 mr-2">
+                                        <svg class="h-full w-full text-gray-300" fill="currentColor" viewBox="0 0 24 24"><path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                                    </span>
                                     {{ participant.pseudo }}
                                 </a>
                             </td>
@@ -115,22 +201,14 @@
                         </tr>
                     {% else %}
                         <tr>
-                            <td colspan="2" class="py-4 text-center text-sm text-gray-500 italic">
-                                Aucun participant inscrit pour le moment.
+                            <td colspan="2" class="py-8 text-center text-sm text-gray-500 italic">
+                                Aucun participant inscrit pour le moment. Soyez le premier !
                             </td>
                         </tr>
                     {% endfor %}
                     </tbody>
                 </table>
             </div>
-        </div>
-
-        {# === BOUTON RETOUR === #}
-        <div class="mt-8 text-center">
-            {# Utilisation de la route 'app_accueil' pour afficher la liste des sorties #}
-            <a href="{{ path('app_accueil') }}" class="text-blue-600 hover:text-blue-800 font-medium hover:underline">
-                &larr; Retour à la liste des sorties
-            </a>
         </div>
 
     </div>
