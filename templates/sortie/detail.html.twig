@@ -106,24 +106,27 @@
                     </div>
                 </div>
 
-                {# Bloc Actions (Inscriptions / Modif) #}
+                {# Bloc Actions #}
                 <div class="bg-white shadow sm:rounded-lg border border-gray-200 p-6 flex flex-col items-center justify-center space-y-4">
                     <h3 class="text-lg font-medium text-gray-900">Actions</h3>
 
                     <div class="flex flex-wrap justify-center gap-4">
-                        {# Logique identique à la page d'accueil #}
 
-                        {# Modifier (Organisateur & En création) #}
+                        {# Modifier / Publier (Organisateur & En création) #}
                         {% if app.user == sortie.organisateur and sortie.etat.libelle == 'En création' %}
-                            <a href="#" class="px-4 py-2 border border-yellow-500 text-yellow-600 rounded-md hover:bg-yellow-50 font-medium">Modifier la sortie</a>
-                            <a href="#" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium">Publier</a>
+                            <a href="{{ path('app_sortie_modifier', {'id': sortie.id}) }}" class="px-4 py-2 border border-yellow-500 text-yellow-600 rounded-md hover:bg-yellow-50 font-medium">Modifier</a>
+
+                            <form method="post" action="{{ path('participation_publication', {'id': sortie.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('publier' ~ sortie.id) }}">
+                                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium">Publier</button>
+                            </form>
                         {% endif %}
 
                         {# S'inscrire #}
                         {% if app.user != sortie.organisateur
                             and not (app.user in sortie.inscrits)
                             and sortie.etat.libelle == "Ouverte"
-                            and sortie.dateLimiteInscription > date('now')
+                            and sortie.dateLimiteInscription > date()
                             and sortie.inscrits|length < sortie.nbInscriptionsMax
                         %}
                             <form method="post" action="{{ path('participation_inscription', {'id': sortie.id}) }}">
@@ -137,7 +140,7 @@
                         {# Se désister #}
                         {% if app.user != sortie.organisateur
                             and app.user in sortie.inscrits
-                            and sortie.dateHeureDebut > date('now')
+                            and sortie.dateHeureDebut > date()
                         %}
                             <form method="post" action="{{ path('participation_desinscription', {'id': sortie.id}) }}">
                                 <input type="hidden" name="_token" value="{{ csrf_token('desister' ~ sortie.id) }}">
@@ -150,17 +153,16 @@
                         {# Annuler (Organisateur) #}
                         {% if app.user == sortie.organisateur
                             and sortie.etat.libelle == "Ouverte"
-                            and sortie.dateHeureDebut > date('now')
+                            and sortie.dateHeureDebut > date()
                         %}
                             <form method="post" action="{{ path('participation_annulation', {'id': sortie.id}) }}">
                                 <input type="hidden" name="_token" value="{{ csrf_token('annuler' ~ sortie.id) }}">
-                                <button type="submit" class="px-4 py-2 text-red-600 hover:text-red-800 hover:underline text-sm font-medium" onclick="return confirm('Annuler cette sortie ?');">
+                                <button type="submit" class="px-4 py-2 text-red-600 hover:bg-red-50 border border-red-200 rounded-md font-medium" onclick="return confirm('Annuler cette sortie ?');">
                                     Annuler la sortie
                                 </button>
                             </form>
                         {% endif %}
 
-                        {# Cas où aucune action n'est possible (ex: clôturée et pas inscrit) #}
                         {% if sortie.etat.libelle != 'En création' and sortie.etat.libelle != 'Ouverte' and not (app.user in sortie.inscrits) %}
                             <span class="text-gray-500 italic">Les inscriptions sont closes.</span>
                         {% endif %}
@@ -188,7 +190,6 @@
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="whitespace-nowrap py-4 pl-6 pr-3 text-sm font-medium text-blue-600">
                                 <a href="{{ path('app_member_show', {'pseudo': participant.pseudo}) }}" class="hover:underline flex items-center">
-                                    {# Avatar placeholder optionnel #}
                                     <span class="inline-block h-6 w-6 rounded-full overflow-hidden bg-gray-100 mr-2">
                                         <svg class="h-full w-full text-gray-300" fill="currentColor" viewBox="0 0 24 24"><path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                                     </span>
@@ -202,7 +203,7 @@
                     {% else %}
                         <tr>
                             <td colspan="2" class="py-8 text-center text-sm text-gray-500 italic">
-                                Aucun participant inscrit pour le moment. Soyez le premier !
+                                Aucun participant inscrit pour le moment.
                             </td>
                         </tr>
                     {% endfor %}
