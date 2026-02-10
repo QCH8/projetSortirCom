@@ -3,7 +3,6 @@
 {% block title %}{{ parent() }} - Accueil{% endblock %}
 
 {% block body %}
-    {# Conteneur principal responsive #}
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {# --- En-tête : Info utilisateur et date --- #}
@@ -24,7 +23,6 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-                {# COLONNE 1 : Champs Texte (Campus + Nom) #}
                 <div class="lg:col-span-5 space-y-4">
                     <div class="block">
                         {{ form_label(form.campus, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
@@ -47,7 +45,6 @@
                     </div>
                 </div>
 
-                {# COLONNE 2 : Checkboxes #}
                 <div class="lg:col-span-4 flex flex-col justify-center space-y-3 pl-0 lg:pl-8">
                     <div class="flex items-center">
                         {{ form_widget(form.isOrganisateur, {'attr': {'class': 'h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500'}}) }}
@@ -67,7 +64,6 @@
                     </div>
                 </div>
 
-                {# COLONNE 3 : Bouton Submit #}
                 <div class="lg:col-span-3 flex items-center justify-center lg:justify-end">
                     {{ form_widget(form.submit, {'attr': {'class': 'w-full lg:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow transition duration-150'}}) }}
                 </div>
@@ -97,106 +93,69 @@
                             <td class="px-4 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
                                 {{ sortie.nom }}
                             </td>
-
                             <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {{ sortie.dateHeureDebut|date('d/m/Y H:i') }}
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
                                 {{ sortie.dateLimiteInscription|date('d/m/Y') }}
                             </td>
-
                             <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                                 {{ sortie.inscrits|length }} / {{ sortie.nbInscriptionsMax }}
                             </td>
-
                             <td class="px-4 py-4 whitespace-nowrap">
                                 {% if sortie.isHistorisee() %}
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                        Historisée
-                                    </span>
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Historisée</span>
                                 {% else %}
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                        {{ sortie.etat.libelle }}
-                                    </span>
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">{{ sortie.etat.libelle }}</span>
                                 {% endif %}
                             </td>
-
                             <td class="px-4 py-4 whitespace-nowrap text-center">
                                 {% if app.user in sortie.inscrits %}
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                        Inscrit
-                                    </span>
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Inscrit</span>
                                 {% endif %}
                             </td>
-
                             <td class="px-4 py-4 whitespace-nowrap text-sm hidden md:table-cell">
                                 <a href="{{ path('app_member_show', {'pseudo': sortie.organisateur.pseudo}) }}" class="text-indigo-600 hover:text-indigo-900 font-medium hover:underline">
                                     {{ sortie.organisateur.pseudo }}
                                 </a>
                             </td>
 
-                            {# Actions #}
                             <td class="px-4 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-
                                 {% if not sortie.isHistorisee() %}
-                                    <a href="{{ path('app_sortie_detail', {'id': sortie.id}) }}" class="text-blue-600 hover:text-blue-900 hover:underline">
-                                        Afficher
-                                    </a>
+                                    <a href="{{ path('app_sortie_detail', {'id': sortie.id}) }}" class="text-blue-600 hover:text-blue-900 hover:underline">Afficher</a>
 
-                                    {% if app.user == sortie.organisateur %}
+                                    {# Condition de modification restreinte à l'état 'En création' #}
+                                    {% if app.user == sortie.organisateur and sortie.etat.libelle == 'En création' %}
                                         <a href="{{ path('app_sortie_modifier', {'id': sortie.id}) }}" class="text-yellow-600 hover:text-yellow-900 hover:underline">Modifier</a>
                                     {% endif %}
 
-                                    {% if app.user == sortie.organisateur
-                                        and sortie.getEtat().getLibelle() == "Ouverte"
-                                        and sortie.dateHeureDebut > date()
-                                    %}
+                                    {% if app.user == sortie.organisateur and sortie.etat.libelle == "Ouverte" and sortie.dateHeureDebut > date() %}
                                         <form method="post" action="{{ path('participation_annulation', {'id': sortie.id}) }}" class="inline-block">
                                             <input type="hidden" name="_token" value="{{ csrf_token('annuler' ~ sortie.id) }}">
-                                            <button type="submit" class="text-red-600 hover:text-red-900 hover:underline bg-transparent border-none cursor-pointer" onclick="return confirm('Confirmer l\'annulation de cette sortie ?');">
-                                                Annuler
-                                            </button>
+                                            <button type="submit" class="text-red-600 hover:text-red-900 hover:underline bg-transparent border-none cursor-pointer" onclick="return confirm('Confirmer l\'annulation ?');">Annuler</button>
                                         </form>
                                     {% endif %}
 
-                                    {% if app.user != sortie.organisateur
-                                        and app.user in sortie.inscrits
-                                        and sortie.dateHeureDebut > date()
-                                    %}
+                                    {% if app.user != sortie.organisateur and app.user in sortie.inscrits and sortie.dateHeureDebut > date() %}
                                         <form method="post" action="{{ path('participation_desinscription', {'id': sortie.id}) }}" class="inline-block">
                                             <input type="hidden" name="_token" value="{{ csrf_token('desister' ~ sortie.id) }}">
-                                            <button type="submit" class="text-red-600 hover:text-red-900 hover:underline bg-transparent border-none cursor-pointer" onclick="return confirm('Confirmer votre désinscription ?');">
-                                                Se désister
-                                            </button>
+                                            <button type="submit" class="text-red-600 hover:text-red-900 hover:underline bg-transparent border-none cursor-pointer" onclick="return confirm('Se désister ?');">Se désister</button>
                                         </form>
                                     {% endif %}
 
-                                    {% if app.user != sortie.organisateur
-                                        and not (app.user in sortie.inscrits)
-                                        and sortie.getEtat().getLibelle() == "Ouverte"
-                                        and sortie.dateLimiteInscription > date()
-                                        and sortie.inscrits|length < sortie.nbInscriptionsMax
-                                    %}
+                                    {% if app.user != sortie.organisateur and not (app.user in sortie.inscrits) and sortie.etat.libelle == "Ouverte" and sortie.dateLimiteInscription > date() and sortie.inscrits|length < sortie.nbInscriptionsMax %}
                                         <form method="post" action="{{ path('participation_inscription', {'id': sortie.id}) }}" class="inline-block">
                                             <input type="hidden" name="_token" value="{{ csrf_token('inscrire' ~ sortie.id) }}">
-                                            <button type="submit" class="text-green-600 hover:text-green-900 hover:underline bg-transparent border-none cursor-pointer">
-                                                S'inscrire
-                                            </button>
+                                            <button type="submit" class="text-green-600 hover:text-green-900 hover:underline bg-transparent border-none cursor-pointer">S'inscrire</button>
                                         </form>
                                     {% endif %}
-
                                 {% else %}
                                     <span class="text-gray-400 italic">Aucune action</span>
                                 {% endif %}
-
                             </td>
                         </tr>
                     {% else %}
-                        <tr>
-                            <td colspan="8" class="px-6 py-10 text-center text-gray-500 italic">
-                                Aucune sortie trouvée pour ces critères.
-                            </td>
-                        </tr>
+                        <tr><td colspan="8" class="px-6 py-10 text-center text-gray-500 italic">Aucune sortie trouvée.</td></tr>
                     {% endfor %}
                     </tbody>
                 </table>
@@ -204,9 +163,7 @@
         </div>
 
         <div class="mt-8">
-            <a href="{{ path('app_sortie_creer') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                Créer une sortie
-            </a>
+            <a href="{{ path('app_sortie_creer') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">Créer une sortie</a>
         </div>
     </div>
 {% endblock %}
