@@ -64,6 +64,11 @@ class SortieController extends AbstractController
     #[Route('/sortie/detail/{id}', name: 'app_sortie_detail')]
     public function detail(Sortie $sortie, MiseAJourEtatSortie $majEtatSortie): Response
     {
+
+        if ($sortie->isHistorisee()) {
+            throw $this->createAccessDeniedException("Cette sortie est historisée et n'est plus consultable.");
+        }
+
         //Accès User only
         $participant = $this->getUser();
         if(!$participant){

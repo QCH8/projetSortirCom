@@ -14,6 +14,8 @@ use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Validator\Constraints\File;
 class ParticipantType extends AbstractType
 {
     // src/Form/ParticipantType.php
@@ -50,6 +52,25 @@ class ParticipantType extends AbstractType
                 'attr' => ['class' => $inputClass],
                 'disabled' => !$options['is_admin'], 
                 'help' => !$options['is_admin'] ? 'Seul un administrateur peut modifier votre campus.' : null,
+            ])
+
+            ->add('photo', FileType::class, [
+                'label' => 'Photo de profil (JPG, PNG)',
+                'mapped' => false,
+                'required' => false,
+                'constraints' => [
+                    new File(
+                        maxSize: '2M',
+                        mimeTypes: ['image/jpeg', 'image/png'],
+                        mimeTypesMessage: 'Veuillez envoyer une image JPG ou PNG valide.',
+                    )
+                ],
+            ]);
+
+            $builder->add('delete_photo', CheckboxType::class, [
+                'label' => 'Supprimer la photo actuelle',
+                'mapped' => false,
+                'required' => false,
             ]);
     }
 
