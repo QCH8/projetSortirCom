@@ -5,7 +5,7 @@
 {% block body %}
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-        {# --- En-tête : Titre + Bouton Retour --- #}
+        {# Navigation et Titre #}
         <div class="flex flex-col md:flex-row justify-between items-center mb-8">
             <h1 class="text-3xl font-extrabold text-gray-900 mb-4 md:mb-0">
                 {{ sortie.nom }}
@@ -16,14 +16,13 @@
             </a>
         </div>
 
-        {# --- Grille principale --- #}
+        {# Layout : 2 colonnes sur Desktop, 1 sur Mobile #}
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-            {# === CARTE 1 : Informations de la sortie === #}
+            {# --- COLONNE 1 : Détails de la sortie --- #}
             <div class="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-200">
                 <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200">
                     <h3 class="text-lg leading-6 font-medium text-gray-900">Informations générales</h3>
-                    <p class="mt-1 max-w-2xl text-sm text-gray-500">Détails de l'événement.</p>
                 </div>
                 <div class="px-4 py-5 sm:p-6 space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -42,10 +41,8 @@
                             </span>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div class="text-sm font-medium text-gray-500">Durée</div>
-                        <div class="sm:col-span-2 text-sm text-gray-900">{{ sortie.duree }} minutes</div>
-                    </div>
+
+                    {# Affichage conditionnel du badge d'état #}
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div class="text-sm font-medium text-gray-500">État</div>
                         <div class="sm:col-span-2">
@@ -58,14 +55,7 @@
                             </span>
                         </div>
                     </div>
-                    {% if sortie.messageAnnulation %}
-                    <div class="mt-4 rounded-lg border border-red-200 bg-red-50 p-4">
-                        <div class="text-sm font-semibold text-red-800">Motif d'annulation</div>
-                        <div class="mt-2 text-sm text-red-900 whitespace-pre-line">
-                            {{ sortie.messageAnnulation|nl2br }}
-                        </div>
-                    </div>
-                    {% endif %}
+
                     <div class="border-t border-gray-100 pt-4">
                         <div class="text-sm font-medium text-gray-500 mb-2">Description</div>
                         <div class="text-sm text-gray-700 bg-gray-50 p-3 rounded-md border border-gray-100">
@@ -75,14 +65,13 @@
                 </div>
             </div>
 
-            {# === CARTE 2 : Lieu & Actions === #}
+            {# --- COLONNE 2 : Lieu & Actions --- #}
             <div class="space-y-8">
 
-                {# Bloc Lieu #}
+                {# Bloc Localisation #}
                 <div class="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-200">
                     <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200">
                         <h3 class="text-lg leading-6 font-medium text-gray-900">Localisation</h3>
-                        <p class="mt-1 max-w-2xl text-sm text-gray-500">Où se déroule la sortie ?</p>
                     </div>
                     <div class="px-4 py-5 sm:p-6 space-y-4">
                         <div class="flex justify-between border-b border-gray-100 pb-2">
@@ -114,23 +103,24 @@
                     </div>
                 </div>
 
-                {# Bloc Actions #}
+                {# Bloc Actions : Gestion des boutons selon les droits et l'état #}
                 <div class="bg-white shadow sm:rounded-lg border border-gray-200 p-6 flex flex-col items-center justify-center space-y-4">
                     <h3 class="text-lg font-medium text-gray-900">Actions</h3>
 
                     <div class="flex flex-wrap justify-center gap-4">
 
-                        {# Modifier / Publier (Organisateur & En création) #}
+                        {# RG : Modification autorisée uniquement pour l'organisateur sur un BROUILLON #}
                         {% if app.user == sortie.organisateur and sortie.etat.libelle == 'En création' %}
-                            <a href="{{ path('app_sortie_modifier', {'id': sortie.id}) }}" class="px-4 py-2 border border-yellow-500 text-yellow-600 rounded-md hover:bg-yellow-50 font-medium">Modifier</a>
-
-                            <form method="post" action="{{ path('participation_publication', {'id': sortie.id}) }}">
-                                <input type="hidden" name="_token" value="{{ csrf_token('publier' ~ sortie.id) }}">
-                                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium">Publier</button>
-                            </form>
+                            <a href="{{ path('app_sortie_modifier', {'id': sortie.id}) }}" class="px-4 py-2 border border-yellow-500 text-yellow-600 rounded-md hover:bg-yellow-50 font-medium transition">
+                                Modifier la sortie
+                            </a>
+                            {# La publication se fait via le formulaire de modification #}
+                            <a href="{{ path('app_sortie_modifier', {'id': sortie.id}) }}" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium transition">
+                                Publier
+                            </a>
                         {% endif %}
 
-                        {# S'inscrire #}
+                        {# RG Inscription : Sortie ouverte + non inscrit + places dispos + date valide #}
                         {% if app.user != sortie.organisateur
                             and not (app.user in sortie.inscrits)
                             and sortie.etat.libelle == "Ouverte"
@@ -145,7 +135,7 @@
                             </form>
                         {% endif %}
 
-                        {# Se désister #}
+                        {# Désistement : Possible tant que la sortie n'a pas commencé #}
                         {% if app.user != sortie.organisateur
                             and app.user in sortie.inscrits
                             and sortie.dateHeureDebut > date()
@@ -158,7 +148,7 @@
                             </form>
                         {% endif %}
 
-                        {# Annuler (Organisateur) #}
+                        {# Annulation : Organisateur uniquement, si sortie publiée #}
                         {% if app.user == sortie.organisateur
                             and sortie.etat.libelle == "Ouverte"
                             and sortie.dateHeureDebut > date()
@@ -171,6 +161,7 @@
                             </form>
                         {% endif %}
 
+                        {# Message informatif si aucune action possible (clôturée/passée) #}
                         {% if sortie.etat.libelle != 'En création' and sortie.etat.libelle != 'Ouverte' and not (app.user in sortie.inscrits) %}
                             <span class="text-gray-500 italic">Les inscriptions sont closes.</span>
                         {% endif %}
@@ -179,7 +170,7 @@
             </div>
         </div>
 
-        {# === Liste des participants === #}
+        {# Liste des inscrits #}
         <div class="mt-10">
             <h2 class="text-xl font-bold text-gray-800 mb-4 pb-2 border-b-2 border-blue-500 inline-block">
                 Liste des participants inscrits
