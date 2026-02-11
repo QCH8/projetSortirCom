@@ -51,7 +51,7 @@ class SortieType extends AbstractType
             // Durée de l'activité
             ->add('duree', IntegerType::class, [
                 'label' => 'Durée (en minutes)',
-                'attr' => ['step' => 15, 'min' => 0]
+                'attr' => ['min' => 1]
             ])
             // Description libre
             ->add('infosSortie', TextareaType::class, [
@@ -66,7 +66,8 @@ class SortieType extends AbstractType
                 'mapped' => false,
                 'label' => 'Ville'
             ])
-            // Lieu : Sélection du lieu précis
+
+            // Liste déroulante des Lieux
             ->add('lieu', EntityType::class, [
                 'class' => Lieu::class,
                 'choice_label' => 'nom',
@@ -78,7 +79,6 @@ class SortieType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            // On lie le formulaire à l'entité Sortie
             'data_class' => Sortie::class,
         ]);
     }
