@@ -56,9 +56,22 @@ class Sortie
     #[ORM\ManyToMany(targetEntity: Participant::class, inversedBy: 'sortiesInscrit')]
     private Collection $inscrits;
 
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $messageAnnulation = null;
+
     public function __construct()
     {
         $this->inscrits = new ArrayCollection();
+    }
+
+    public function getMessageAnnulation(): ?string
+    {
+        return $this->messageAnnulation;
+    }
+
+    public function setMessageAnnulation(?string $messageAnnulation): void
+    {
+        $this->messageAnnulation = $messageAnnulation;
     }
 
     public function getId(): ?int
