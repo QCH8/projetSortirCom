@@ -33,7 +33,7 @@
 
             {% if app.user and app.user.pseudo %}
                 <li class="hover:underline">
-                    <a href="{{ path('app_member_show', {pseudo: app.user.pseudo}) }}">
+                    <a href="{{ path('app_profil_modifier', {pseudo: app.user.pseudo}) }}">
                         Mon profil
                     </a>
                 </li>

@@ -3,36 +3,54 @@
 {% block title %} {{ participant.pseudo }} {% endblock %}
 
 {% block body %}
-    <div class="max-w-2xl mx-auto mt-10 px-4">
-        <h1 class ="text-3xl font-extrabold text-center mb-10">
-            {{ participant.pseudo }}
-        </h1>
-        <div class="bg-white shadow-xl rounded-2xl p-8 border border-slate-100">
-            <dl class="grid grid-cols-2 gap-y-6 text-lg">
-                {# Ligne Campus #}
-                <dt class="font-bold text-gray-700">Campus :</dt>
-                <dd>{{ participant.campus.nom }}</dd>
-
-                <dt class="font-bold text-gray-700">Prénom :</dt>
-                <dd>{{ participant.prenom }}</dd>
-
-                <dt class="font-bold text-gray-700">Nom :</dt>
-                <dd>{{ participant.nom }}</dd>
-
-                <dt class="font-bold text-gray-700">Téléphone :</dt>
-                <dd>{{ participant.telephone }}</dd>
-
-                <dt class="font-bold text-gray-700">Email :</dt>
-                <dd>{{ participant.mail }}</dd>
-
-                {# On ajoutera les autres ici après ton test #}
-            </dl>
+    <div class="max-w-5xl mx-auto mt-10 px-4 flex flex-col md:flex-row gap-20 items-start">
+        
+        {# --- COLONNE GAUCHE : PHOTO --- #}
+        <div class="w-full md:w-64 flex-shrink-0 mt-20">
+            <div class="border-2 border-black p-1 bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                {% if participant.photo %}
+                    <img src="{{ asset('uploads/photos/' ~ participant.photo) }}" 
+                         alt="Photo de {{ participant.pseudo }}" 
+                         class="w-full h-auto object-cover">
+                {% else %}
+                    <div class="w-full aspect-[4/3] bg-gray-50 flex items-center justify-center text-6xl">
+                        👤
+                    </div>
+                {% endif %}
+            </div>
         </div>
-        <div class="mt-12 text-center">
-            <a href="{{ urlPrecedente ?: path('app_accueil') }}" 
-                class="inline-block bg-slate-800 text-white px-8 py-3 rounded-lg font-bold shadow-md hover:bg-slate-700 transition-all active:scale-95">
-                Retour
-            </a>
+
+        {# --- COLONNE DROITE : INFORMATIONS --- #}
+        <div class="flex-1">
+            <h1 class="text-3xl font-extrabold text-center md:text-left mb-10">
+                {{ participant.pseudo }}
+            </h1>
+
+            <div class="bg-white shadow-xl rounded-2xl p-8 border border-slate-100">
+                <dl class="grid grid-cols-2 gap-y-6 text-lg">
+                    <dt class="font-bold text-gray-700">Campus :</dt>
+                    <dd>{{ participant.campus.nom }}</dd>
+
+                    <dt class="font-bold text-gray-700">Prénom :</dt>
+                    <dd>{{ participant.prenom }}</dd>
+
+                    <dt class="font-bold text-gray-700">Nom :</dt>
+                    <dd>{{ participant.nom }}</dd>
+
+                    <dt class="font-bold text-gray-700">Téléphone :</dt>
+                    <dd>{{ participant.telephone }}</dd>
+
+                    <dt class="font-bold text-gray-700">Email :</dt>
+                    <dd>{{ participant.mail }}</dd>
+                </dl>
+            </div>
+
+            <div class="mt-12 text-center md:text-left">
+                <a href="{{ urlPrecedente ?: path('app_accueil') }}" 
+                    class="inline-block bg-slate-800 text-white px-8 py-3 rounded-lg font-bold shadow-md hover:bg-slate-700 transition-all active:scale-95">
+                    Retour
+                </a>
+            </div>
         </div>
     </div>
 {% endblock %}
