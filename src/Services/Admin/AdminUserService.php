@@ -6,6 +6,7 @@ use App\Entity\Participant;
 use App\Model\SearchParticipant;
 use App\Repository\ParticipantRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 
 class AdminUserService
 {
@@ -15,9 +16,9 @@ class AdminUserService
     ){}
 
     /** @return Participant[]*/
-    public function list(SearchParticipant $search): array
+    public function getUserQueryBuilder(SearchParticipant $search): QueryBuilder
     {
-        return $this->participants->findForAdminList($search);
+        return $this->participants->queryBuilderForAdminList($search);
     }
 
     public function toggleActif(Participant $participant): void

@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Participant;
 use App\Model\SearchParticipant;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
 
@@ -34,25 +35,25 @@ class ParticipantRepository extends ServiceEntityRepository implements UserLoade
             ->getOneOrNullResult();
     }
 
-    public function findForAdminList(SearchParticipant $search): array
+    public function queryBuilderForAdminList(SearchParticipant $search): QueryBuilder
     {
         $baseRequete = $this->createQueryBuilder('p')
             ->leftJoin('p.campus', 'c')->addSelect('c')
             ->orderBy('p.nom', 'ASC');
 
-        if($search->getCampus()){
+        if($search->getCampus() !== null){
             $baseRequete->andWhere('p.campus = :campus')->setParameter('campus', $search->getCampus());
         }
 
-        if($search->getNom()){
-            $baseRequete->andWhere('LOWER(p.nom) LIKE :q OR LOWER(p.prenom) LIKE :q OR LOWER(p.email) LIKE :q')
+        if($search->getNom() !== null && trim($search->getNom())!== '' ){
+            $baseRequete->andWhere('LOWER(p.nom) LIKE :q OR LOWER(p.prenom) LIKE :q OR LOWER(p.mail) LIKE :q')
                 ->setParameter('q', '%'.mb_strtolower(trim($search->getNom())).'%');
         }
 
         if($search->getActifSeulement() === true){
             $baseRequete->andWhere('p.actif = true');
         }
-        return $baseRequete->getQuery()->getResult();
+        return $baseRequete;
     }
 
 

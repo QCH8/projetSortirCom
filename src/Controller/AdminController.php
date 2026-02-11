@@ -6,8 +6,8 @@ use App\Entity\Participant;
 use App\Form\ParticipantType;
 use App\Form\SearchParticipantType;
 use App\Model\SearchParticipant;
-use App\Repository\ParticipantRepository;
 use App\Services\Admin\AdminUserService;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,6 +27,7 @@ final class AdminController extends AbstractController
     public function listUsers(
         Request $request,
         AdminUserService $adminUserService,
+        PaginatorInterface $paginator
     ): Response
     {
         //bien un admin
@@ -36,11 +37,15 @@ final class AdminController extends AbstractController
         $form = $this->createForm(SearchParticipantType::class, $search);
         $form->handleRequest($request);
 
-        $participants = $adminUserService->list($search);
+        $qb = $adminUserService->getUserQueryBuilder($search);
+        $page = max(1, (int) $request->query->get('page', 1));
+
+        //items par page
+        $pagination = $paginator->paginate($qb, $page, 15);
 
         return $this->render('admin/users/listing.html.twig', [
             'form' => $form->createView(),
-            'participants' => $participants,
+            'participants' => $pagination,
         ]);
     }
 
@@ -63,7 +68,7 @@ final class AdminController extends AbstractController
             return $this->redirectToRoute('admin_users');
         }
 
-        return $this->render('admin/users/edit.html.twig', [
+        return $this->render('admin/users/modifierParAdmin.html.twig', [
             'form' => $form->createView(),
             'participant' => $participant,
         ]);

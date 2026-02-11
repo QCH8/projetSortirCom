@@ -62,7 +62,7 @@ class SortieController extends AbstractController
     }
 
     // --- CREATION DE LA ROUTE 'Détail d'une sortie' --- //
-    #[Route('/sortie/detail/{id}', name: 'app_sortie_detail', methods: ['GET'], requirements: ['id' => '\d+'])]
+    #[Route('/sortie/detail/{id}', name: 'app_sortie_detail', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function detail(Sortie $sortie, MiseAJourEtatSortie $majEtatSortie): Response
     {
 
