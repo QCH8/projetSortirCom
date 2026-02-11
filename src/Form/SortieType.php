@@ -44,7 +44,7 @@ class SortieType extends AbstractType
             // Durée de l'activité
             ->add('duree', IntegerType::class, [
                 'label' => 'Durée (en minutes)',
-                'attr' => ['step' => 15]
+                'attr' => ['min' => 1]
             ])
             // Description libre
             ->add('infosSortie', TextareaType::class, [
