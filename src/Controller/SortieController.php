@@ -8,31 +8,17 @@ use App\Form\SearchSortieType;
 use App\Form\SortieType;
 use App\Repository\EtatRepository;
 use App\Repository\SortieRepository;
-use App\Services\MiseAJourEtatSortie;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-
 class SortieController extends AbstractController
 {
     // --- CREATION DE LA ROUTE ACCUEIL --- //
     #[Route('/accueil', name: 'app_accueil')]
-    public function liste(SortieRepository $sortieRepository, Request $request, MiseAJourEtatSortie $majEtatSortie): Response
+    public function liste(SortieRepository $sortieRepository, Request $request): Response
     {
-        //Accès User only
-        $participant = $this->getUser();
-        if (!$participant) {
-            $this->addFlash("error", "Vous devez être connecté.");
-            return $this->redirectToRoute("app_connexion");
-        }
-        //bien une instance de Participant
-        if (!$participant instanceof Participant) {
-            $this->addFlash("error", "Utilisateur Invalide.");
-            return $this->redirectToRoute("app_connexion");
-        }
-
         // 1. Récupération de l'utilisateur connecté (le Participant)
         /** @var Participant $utilisateur */
         $utilisateur = $this->getUser();
@@ -52,9 +38,6 @@ class SortieController extends AbstractController
         // 5. Appel de la méthode personnalisée dans le Repository
         $sorties = $sortieRepository->findSearch($utilisateur, $criteres);
 
-        //6. Mise à jour des états à l'aide du Service MiseAJourEtatSortie
-        $majEtatSortie->synchroniserSiBesoinListe($sorties);
-
         return $this->render('sortie/accueil.html.twig', [
             'form' => $form->createView(),
             'sorties' => $sorties,
@@ -62,175 +45,58 @@ class SortieController extends AbstractController
     }
 
     // --- CREATION DE LA ROUTE 'Détail d'une sortie' --- //
-    #[Route('/sortie/detail/{id}', name: 'app_sortie_detail', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function detail(Sortie $sortie, MiseAJourEtatSortie $majEtatSortie): Response
+    #[Route('/sortie/detail/{id}', name: 'app_sortie_detail')]
+    public function detail(Sortie $sortie): Response
     {
-        //Accès User only
-        $participant = $this->getUser();
-        if (!$participant) {
-            $this->addFlash("error", "Vous devez être connecté.");
-            return $this->redirectToRoute("app_connexion");
-        }
-        //bien une instance de Participant
-        if (!$participant instanceof Participant) {
-            $this->addFlash("error", "Utilisateur Invalide.");
-            return $this->redirectToRoute("app_connexion");
-        }
-
-        //Mise à jour pour cette sortie si besoin
-        $majEtatSortie->synchroniserSiBesoin($sortie);
-
         return $this->render('sortie/detail.html.twig', [
             'sortie' => $sortie
         ]);
     }
 
     // --- CREATION DE LA ROUTE "Créer une sortie" --- //
-    #[Route('/sortie/creer', name: 'app_sortie_creer', methods: ['GET', 'POST'])]
+    #[Route('/sortie/creer', name: 'app_sortie_creer')]
     public function creer(Request $request, EntityManagerInterface $entityManager, EtatRepository $etatRepository): Response
     {
-        // 1. Vérification que l'utilisateur est connecté
+        // 1. On crée une instance vide
+        $sortie = new Sortie();
+
+        // 2. On récupère l'utilisateur connecté (organisateur)
         /** @var Participant $user */
         $user = $this->getUser();
-        if (!$user) {
-            $this->addFlash('error', 'Vous devez être connecté pour créer une sortie.');
-            return $this->redirectToRoute("app_connexion");
-        }
-
-        $sortie = new Sortie();
-        // L'organisateur est l'utilisateur connecté
         $sortie->setOrganisateur($user);
-        // Le campus est celui de l'organisateur
+
+        // 3. On définit le campus de la sortie (celui de l'organisateur)
         $sortie->setCampus($user->getCampus());
 
+        // 4 . On crée le formualire
         $form = $this->createForm(SortieType::class, $sortie);
         $form->handleRequest($request);
 
+        //5. Traitemnent du formulaire
         if ($form->isSubmitted() && $form->isValid()) {
 
-            // 2. Gestion des boutons : "Publier" ou "Enregistrer"
-            if ($request->request->has('publier')) {
+            // GESTION DES BOUTONS "ENREGISTRER" vs "PUBLIER"
+            // 1. On cherche l'état correspondant dans la base de données
+            if ($request->request->has('publier')){
                 $etat = $etatRepository->findOneBy(['libelle' => 'Ouverte']);
-                $message = 'Votre sortie a été publiée !';
             } else {
-                // Sinon, c'est le bouton "Enregistrer" (Brouillon)
                 $etat = $etatRepository->findOneBy(['libelle' => 'En création']);
-                $message = 'Votre sortie a été enregistrée en brouillon.';
             }
 
-            if ($etat) {
-                $sortie->setEtat($etat);
+            // 2. Affichage du résultat
+            $sortie->setEtat($etat);
 
-                $entityManager->persist($sortie);
-                $entityManager->flush();
+            // 3. Sauvegarde de BDD
+            $entityManager->persist($sortie);
+            $entityManager->flush();
 
-                $this->addFlash('success', $message);
-                return $this->redirectToRoute('app_accueil');
-            } else {
-                $this->addFlash('error', 'Erreur : État introuvable en base de données.');
-            }
+            // 4. Message pop-up de validation d'action et redirection de l'utilisateur
+            $this->addFlash('success', 'La Sortie a bien été ajoutée !');
+            return $this->redirectToRoute('app_accueil');
         }
 
         return $this->render('sortie/creer.html.twig', [
             'form' => $form->createView(),
         ]);
-    }
-
-    // --- MODIFIER UNE SORTIE --- //
-    #[Route('/sortie/modifier/{id}', name: 'app_sortie_modifier', requirements: ['id' => '\d+'])]
-    public function modifier(
-        Sortie $sortie,
-        Request $request,
-        EntityManagerInterface $entityManager,
-        EtatRepository $etatRepository
-    ): Response
-    {
-        // 1. Sécurité : Vérifier que l'utilisateur est bien l'organisateur
-        if ($this->getUser() !== $sortie->getOrganisateur()) {
-            $this->addFlash('error', 'Vous n\'êtes pas l\'organisateur de cette sortie.');
-            return $this->redirectToRoute('app_accueil');
-        }
-
-        // 2. Sécurité : Vérifier que la sortie est bien en "En création"
-        if ($sortie->getEtat()->getLibelle() !== 'En création') {
-            $this->addFlash('error', 'Cette sortie est déjà publiée, vous ne pouvez plus la modifier.');
-            return $this->redirectToRoute('app_accueil');
-        }
-
-        $form = $this->createForm(SortieType::class, $sortie);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-
-            if ($request->request->has('publier')) {
-                $etat = $etatRepository->findOneBy(['libelle' => 'Ouverte']);
-                $message = 'Votre sortie a été modifiée et publiée !';
-            } else {
-                $etat = $etatRepository->findOneBy(['libelle' => 'En création']);
-                $message = 'Modifications enregistrées (toujours en brouillon).';
-            }
-
-            if ($etat) {
-                $sortie->setEtat($etat);
-                $entityManager->flush();
-
-                $this->addFlash('success', $message);
-                return $this->redirectToRoute('app_accueil');
-            }
-        }
-
-        return $this->render('sortie/modifier.html.twig', [
-            'form' => $form->createView(),
-            'sortie' => $sortie
-        ]);
-    }
-
-    // --- SUPPRIMER UNE SORTIE --- //
-    #[Route('/sortie/supprimer/{id}', name: 'app_sortie_supprimer', requirements: ['id' => '\d+'])]
-    public function supprimer(Sortie $sortie, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->getUser() !== $sortie->getOrganisateur()) {
-            $this->addFlash('error', 'Accès refusé.');
-            return $this->redirectToRoute('app_accueil');
-        }
-
-        if ($sortie->getEtat()->getLibelle() !== 'En création') {
-            $this->addFlash('error', 'Impossible de supprimer une sortie publiée.');
-            return $this->redirectToRoute('app_accueil');
-        }
-
-        $entityManager->remove($sortie);
-        $entityManager->flush();
-
-        $this->addFlash('success', 'La sortie a été supprimée définitivement.');
-        return $this->redirectToRoute('app_accueil');
-    }
-
-    // --- ROUTES API --- //
-    #[Route('/lieu/api/{id}', name: 'app_lieu_api', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function getLieuApi(\App\Entity\Lieu $lieu): Response
-    {
-        return $this->json([
-            'rue' => $lieu->getRue(),
-            'codePostal' => $lieu->getVille()->getCodePostal(),
-            'latitude' => $lieu->getLatitude(),
-            'longitude' => $lieu->getLongitude(),
-        ]);
-    }
-
-    #[Route('/ville/api/{id}/lieux', name: 'app_ville_lieux_api', methods: ['GET'])]
-    public function getLieuxParVille(\App\Entity\Ville $ville): Response
-    {
-        $lieux = $ville->getLieux();
-        $data = [];
-
-        foreach ($lieux as $lieu) {
-            $data[] = [
-                'id' => $lieu->getId(),
-                'nom' => $lieu->getNom()
-            ];
-        }
-
-        return $this->json($data);
     }
 }

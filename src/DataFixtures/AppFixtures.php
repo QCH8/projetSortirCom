@@ -37,21 +37,13 @@ class AppFixtures extends Fixture
         }
 
         // Création des états
-        $configEtats = [
-            "En création" => "ETAT_CREATION",
-            "Ouverte" => "ETAT_OUVERTE",
-            "Clôturée" => "ETAT_CLOTUREE",
-            "En cours" => "ETAT_EN_COURS",
-            "Terminée" => "ETAT_TERMINEE",
-            "Annulée" => "ETAT_ANNULEE",
-            "Historisée" => "ETAT_HISTORISEE"
-        ];
-
-        foreach ($configEtats as $libelle => $ref) {
+        $etats = [];
+        $etatArray = ["En création", "Ouverte", "Clôturée", "En cours", "Terminée", "Annulée", "Historisée"];
+        for($i=0; $i<count($etatArray); $i++){
             $etat = new Etat();
-            $etat->setLibelle($libelle);
+            $etat->setLibelle($etatArray[$i]);
             $manager->persist($etat);
-            $this->addReference($ref, $etat);
+            $etats[] = $etat;
         }
 
 

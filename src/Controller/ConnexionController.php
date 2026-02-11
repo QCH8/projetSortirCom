@@ -9,6 +9,11 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class ConnexionController extends AbstractController
 {
+
+    #[Route(path: '/', name: 'app_accueil')]
+    public function accueil(AuthenticationUtils $authenticationUtils): Response{
+        return $this->render('accueil.html.twig');
+    }
     #[Route(path: '/connexion', name: 'app_connexion')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
