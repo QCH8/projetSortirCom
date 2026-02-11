@@ -19,13 +19,13 @@ class Sortie
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private ?\DateTimeImmutable $dateHeureDebut = null;
 
     #[ORM\Column]
     private ?int $duree = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private ?\DateTimeImmutable $dateLimiteInscription = null;
 
     #[ORM\Column]
@@ -56,9 +56,22 @@ class Sortie
     #[ORM\ManyToMany(targetEntity: Participant::class, inversedBy: 'sortiesInscrit')]
     private Collection $inscrits;
 
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $messageAnnulation = null;
+
     public function __construct()
     {
         $this->inscrits = new ArrayCollection();
+    }
+
+    public function getMessageAnnulation(): ?string
+    {
+        return $this->messageAnnulation;
+    }
+
+    public function setMessageAnnulation(?string $messageAnnulation): void
+    {
+        $this->messageAnnulation = $messageAnnulation;
     }
 
     public function getId(): ?int
@@ -208,5 +221,19 @@ class Sortie
         $this->inscrits->removeElement($inscrit);
 
         return $this;
+    }
+
+    public function isHistorisee(): bool
+    {
+        $unMoisDernier = new \DateTimeImmutable('-1 month');
+        $libelleEtat = $this->getEtat()->getLibelle();
+
+        // Condition 1 : Elle est déjà marquée "Historisée" en base de données
+        if ($libelleEtat === 'Historisée') {
+            return true;
+        }
+
+        // Condition 2 : Elle est "Terminée" ET elle a commencé il y a plus d'un mois
+        return $libelleEtat === 'Terminée' && $this->getDateHeureDebut() < $unMoisDernier;
     }
 }

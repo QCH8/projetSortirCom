@@ -4,7 +4,7 @@
         <meta charset="UTF-8">
         <title>{% block title %}Welcome!{% endblock %}</title>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        
+
         {% block stylesheets %}{% endblock %}
 
         {% block javascripts %}
@@ -12,18 +12,22 @@
         {% endblock %}
     </head>
     <body class="bg-slate-100 text-gray-900">
-        
+
+    {% block navbar %}
+        {% include 'partials/_navbar.html.twig' %}
+    {% endblock %}
+
         {# Section des messages Flash #}
         <div class="max-w-2xl mx-auto px-4 mt-6">
             {% for label, messages in app.flashes %}
                 {% for message in messages %}
-                    <div class="flex items-center p-4 mb-4 rounded-lg border shadow-sm 
-                        {{ label == 'success' ? 'bg-green-50 border-green-200 text-green-800' : 
-                           label == 'error' ? 'bg-red-50 border-red-200 text-red-800' : 
-                           label == 'warning' ? 'bg-yellow-50 border-yellow-200 text-yellow-800' : 
-                           'bg-blue-50 border-blue-200 text-blue-800' }}" 
+                    <div class="flex items-center p-4 mb-4 rounded-lg border shadow-sm
+                        {{ label == 'success' ? 'bg-green-50 border-green-200 text-green-800' :
+                           label == 'error' ? 'bg-red-50 border-red-200 text-red-800' :
+                           label == 'warning' ? 'bg-yellow-50 border-yellow-200 text-yellow-800' :
+                           'bg-blue-50 border-blue-200 text-blue-800' }}"
                          role="alert">
-                        
+
                         {# Icône dynamique #}
                         <svg class="flex-shrink-0 w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
                             {% if label == 'success' %}

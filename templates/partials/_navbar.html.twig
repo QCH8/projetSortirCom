@@ -1,0 +1,49 @@
+
+<nav class="w-full bg-slate-200 border-b" aria-label="Navigation principale">
+    <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+        <a class="font-semibold" href="{{ path('app_accueil') }}">Sortir.com</a>
+
+        <button
+            class="md:hidden px-3 py-2 border rounded"
+            aria-controls="primary-nav"
+            aria-expanded="false"
+            data-controller="nav"
+            data-action="nav#toggle"
+        >
+            Menu
+        </button>
+
+        <ul id="primary-nav" class="hidden md:flex items-center gap-6" data-nav-target="menu">
+            {% set currentRoute = app.request.attributes.get('_route') %}
+            {#
+            {% if is_granted('ROLE_ADMIN') %}
+                <li>
+                    <a href="{{ path('admin_dashboard') }}">
+                        Admin
+                    </a>
+                </li>
+            {% endif %}
+            #}
+            <li class="hover:underline">
+                <a href="{{ path('app_accueil') }}"
+                   {% if app.current_route == 'app_accueil' %}aria-current="page"{% endif %}>
+                    Accueil
+                </a>
+            </li>
+
+            {% if app.user and app.user.pseudo %}
+                <li class="hover:underline">
+                    <a href="{{ path('app_member_show', {pseudo: app.user.pseudo}) }}">
+                        Mon profil
+                    </a>
+                </li>
+
+                <li class="hover:underline">
+                    <a href="{{ path('app_deconnexion') }}">
+                        Déconnexion
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
