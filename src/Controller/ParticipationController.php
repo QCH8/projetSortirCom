@@ -241,7 +241,20 @@ final class ParticipationController extends AbstractController
             return $this->redirectToRoute("app_accueil");
         }
 
-        //Si rien n'est déclenché : on annule
+        $message = trim((string) $request->request->get('messageAnnulation', ''));
+
+        if ($message === '') {
+            $this->addFlash("error", "Merci de justifier l'annulation.");
+            return $this->redirectToRoute("app_accueil");
+        }
+
+        if (mb_strlen($message) > 255) {
+            $this->addFlash("error", "Le message est trop long (255 caractères max).");
+            return $this->redirectToRoute("app_accueil");
+        }
+
+        //Si rien n'est déclenché : on annule et on stocke le message
+        $sortie->setMessageAnnulation($message);
         $sortie->setEtat($etatRepo->findOneBy(['libelle' => 'Annulée']));
         $manager->persist($sortie);
         $manager->flush();
