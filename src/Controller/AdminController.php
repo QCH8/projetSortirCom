@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Participant;
-use App\Form\ParticipantType;
+use App\Form\AdminModifyParticipantType;
 use App\Form\SearchParticipantType;
 use App\Model\SearchParticipant;
 use App\Services\Admin\AdminUserService;
@@ -59,7 +59,7 @@ final class AdminController extends AbstractController
         //bien un admin
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
-        $form = $this->createForm(ParticipantType::class, $participant);
+        $form = $this->createForm(AdminModifyParticipantType::class, $participant);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

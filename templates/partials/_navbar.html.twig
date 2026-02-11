@@ -15,15 +15,13 @@
 
         <ul id="primary-nav" class="hidden md:flex items-center gap-6" data-nav-target="menu">
             {% set currentRoute = app.request.attributes.get('_route') %}
-            {#
             {% if is_granted('ROLE_ADMIN') %}
                 <li>
-                    <a href="{{ path('admin_dashboard') }}">
+                    <a href="{{ path('app_admin') }}">
                         Admin
                     </a>
                 </li>
             {% endif %}
-            #}
             <li class="hover:underline">
                 <a href="{{ path('app_accueil') }}"
                    {% if app.current_route == 'app_accueil' %}aria-current="page"{% endif %}>

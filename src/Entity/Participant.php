@@ -36,7 +36,7 @@ class Participant implements PasswordAuthenticatedUserInterface, UserInterface
     private ?string $password = null;
 
     #[ORM\Column]
-    private ?bool $administrateur = null;
+    private bool $administrateur = false;
 
     #[ORM\Column]
     private ?bool $actif = null;
@@ -134,12 +134,12 @@ class Participant implements PasswordAuthenticatedUserInterface, UserInterface
         return $this;
     }
 
-    public function isAdministrateur(): ?bool
+    public function isAdministrateur(): bool
     {
         return $this->administrateur;
     }
 
-    public function setAdministrateur(bool $administrateur): static
+    public function setAdministrateur(bool $administrateur): self
     {
         $this->administrateur = $administrateur;
 
