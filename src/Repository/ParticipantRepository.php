@@ -27,6 +27,7 @@ class ParticipantRepository extends ServiceEntityRepository implements UserLoade
         //Connexion avec pseudo ou mail, si actif
         return $this->createQueryBuilder("participant")
             ->andWhere("(LOWER(participant.mail) = :mailLower OR participant.pseudo = :identifier)")
+            ->andWhere("participant.actif = true")
             ->setParameter('identifier', $identifier)
             ->setParameter('mailLower', $identifierLower)
             ->getQuery()

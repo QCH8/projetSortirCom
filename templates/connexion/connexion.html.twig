@@ -1,5 +1,4 @@
 {% extends 'base.html.twig' %}
-{% block navbar %}{% endblock %}
 
 {% block title %}Connexion{% endblock %}
 
@@ -17,7 +16,7 @@
             <div class="bg-white rounded shadow border border-slate-200 p-10">
                 <form method="post">
                     {% if error %}
-                        <div class="rounded-lg border border-red-200 bg-red-50 p-3 text-red-800 mb-4">
+                        <div class="">
                             {{ error.messageKey|trans(error.messageData, 'security') }}
                         </div>
                     {% endif %}
