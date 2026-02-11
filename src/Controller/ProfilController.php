@@ -15,11 +15,14 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 final class ProfilController extends AbstractController
 {
     #[Route('/profil/modifier', name: 'app_profil_modifier', methods: ['GET', 'POST'])]
-    public function modifier(Request $request, EntityManagerInterface $entityManagerInterface, UserPasswordHasherInterface $userPasswordHasher): Response
+    public function modifier(Request $request, EntityManagerInterface $entityManagerInterface, UserPasswordHasherInterface $userPasswordHasher, \Symfony\Bundle\SecurityBundle\Security $security): Response
     {
         /** @var Participant $participant */
         $participant = $this->getUser();
         assert($participant instanceof Participant);
+
+        $originalPseudo = $participant->getPseudo();
+        $originalMail = $participant->getMail();
 
         $form = $this->createForm(ParticipantType::class, $participant, [
             'is_admin' => $this->isGranted('ROLE_ADMIN')
@@ -77,12 +80,21 @@ final class ProfilController extends AbstractController
             $entityManagerInterface->persist($participant);
             $entityManagerInterface->flush();
 
+            // 4. RE-AUTHENTIFICATION ANTI-DECONNEXION
+            // Si l'identifiant (mail ou pseudo) a changé, on reconnecte l'utilisateur pour éviter la perte de session brutale
+            if ($originalMail !== $participant->getMail() || $originalPseudo !== $participant->getPseudo()) {
+                // On reconnecte l'utilisateur sur le firewall 'main' avec l'authenticator 'form_login'
+                $security->login($participant, 'form_login', 'main');
+            }
+
             $this->addFlash('success', 'Votre profil a été mis à jour avec succès !');
             return $this->redirectToRoute('app_profil_modifier');
         }
 
         return $this->render('profil/modifier.html.twig', [
             'form' => $form,
+            'originalPseudo' => $originalPseudo,
+            'originalMail' => $originalMail,
         ]);
     }
 }

@@ -35,9 +35,10 @@ class UniqueFieldChecker
     public function getValidationError(): ?string
     {
         $valueToCheck = trim($this->value);
+        $initialValueNormalized = strtolower(trim($this->initialValue));
         
-        // Pas de check si vide ou si c'est la valeur initiale
-        if (strlen($valueToCheck) < 3 || $valueToCheck === $this->initialValue) {
+        // Pas de check si vide ou si c'est la valeur initiale (insensible à la casse)
+        if (strlen($valueToCheck) < 3 || strtolower($valueToCheck) === $initialValueNormalized) {
             return null;
         }
 

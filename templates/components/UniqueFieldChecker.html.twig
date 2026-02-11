@@ -1,15 +1,17 @@
 <div {{ attributes }}>
+    {% set error = this.getValidationError() %}
+    
     <label class="block text-sm font-medium text-gray-700">{{ label }}</label>
     
     <input type="text" 
            name="{{ inputName }}" 
            value="{{ value }}"
            data-model="debounce(300)|value" 
-           class="w-full rounded-md border-gray-300 shadow-sm {{ this.getValidationError() ? 'border-red-500' : 'focus:ring-indigo-500' }}">
+           class="w-full rounded-md border-gray-300 shadow-sm {{ error ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'focus:ring-indigo-500' }}">
 
-    {% if this.getValidationError() %}
+    {% if error %}
         <div class="mt-2 flex items-center gap-2 text-sm text-red-600 font-semibold bg-red-50 p-2 rounded-lg border border-red-100">
-            <span>⚠️</span> {{ this.getValidationError() }}
+            <span>⚠️</span> {{ error }}
         </div>
     {% endif %}
 </div>
