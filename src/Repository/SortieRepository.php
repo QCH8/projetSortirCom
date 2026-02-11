@@ -21,71 +21,74 @@ class SortieRepository extends ServiceEntityRepository
      */
     public function findSearch(Participant $utilisateur, array $donnees): array
     {
-        // On crée le QueryBuilder de base sur l'entité Sortie (alias 's')
         $qb = $this->createQueryBuilder('s')
-            ->leftJoin('s.etat', 'e') // Jointure pour filtrer sur le libellé de l'état
+            ->join('s.etat', 'e')   // J'ai mis join au lieu de leftJoin pour forcer l'existence d'un état
             ->addSelect('e')
-            ->leftJoin('s.campus', 'c') // Jointure pour le filtre par campus
-            ->addSelect('c');
+            ->join('s.campus', 'c')
+            ->addSelect('c')
+            ->join('s.organisateur', 'o') // Utile pour afficher le nom sans refaire de requête
+            ->addSelect('o');
 
-        // --- RÈGLE DE VISIBILITÉ ---
-        // On ne veut voir que les sorties publiées OU celles dont on est l'organisateur
+        // --- 1. RÈGLE DE VISIBILITÉ (Optimisée) ---
+        // Soit l'état n'est PAS 'En création' (donc Ouverte, Clôturée, Passée...)
+        // Soit JE SUIS l'organisateur (peu importe l'état)
         $qb->andWhere(
             $qb->expr()->orX(
                 'e.libelle != :etatCreer',
                 's.organisateur = :user'
             )
         )
-            ->setParameter('etatCreer', 'En création')
+            ->setParameter('etatCreer', 'En création') // VÉRIFIEZ CE TEXTE AVEC VOTRE BDD !
             ->setParameter('user', $utilisateur);
 
-        // --- FILTRES DYNAMIQUES (FORMULAIRE) ---
+        // --- 2. FILTRES FORMULAIRE ---
 
-        // 1. Filtre par Campus
         if (!empty($donnees['campus'])) {
             $qb->andWhere('s.campus = :campus')
                 ->setParameter('campus', $donnees['campus']);
         }
 
-        // 2. Filtre par Nom (recherche partielle)
         if (!empty($donnees['nom'])) {
             $qb->andWhere('s.nom LIKE :nom')
                 ->setParameter('nom', '%' . $donnees['nom'] . '%');
         }
 
-        // 3. Filtre par Dates (Intervalle)
         if (!empty($donnees['dateDebut'])) {
             $qb->andWhere('s.dateHeureDebut >= :dateDebut')
                 ->setParameter('dateDebut', $donnees['dateDebut']);
         }
+
         if (!empty($donnees['dateFin'])) {
             $qb->andWhere('s.dateHeureDebut <= :dateFin')
                 ->setParameter('dateFin', $donnees['dateFin']);
         }
 
-        // 4. Filtre "Sorties dont je suis l'organisateur"
         if (!empty($donnees['isOrganisateur'])) {
             $qb->andWhere('s.organisateur = :user');
-            // Le paramètre :user est déjà défini plus haut
         }
 
-        // 5. Filtre "Sorties auxquelles je suis inscrit"
+        // "MEMBER OF" est la façon correcte de vérifier une collection ManyToMany en DQL
         if (!empty($donnees['isInscrit'])) {
             $qb->andWhere(':user MEMBER OF s.inscrits');
         }
 
-        // 6. Filtre "Sorties auxquelles je ne suis PAS inscrit"
         if (!empty($donnees['isNotInscrit'])) {
             $qb->andWhere(':user NOT MEMBER OF s.inscrits');
         }
 
-        // 7. Filtre "Sorties passées"
         if (!empty($donnees['isTerminee'])) {
             $qb->andWhere('e.libelle = :etatPasser')
-                ->setParameter('etatPasser', 'Passée');
+                ->setParameter('etatPasser', 'Passée'); // VÉRIFIEZ CE TEXTE AVEC VOTRE BDD !
         }
 
-        // On ordonne par date de début (la plus proche en premier)
+        // --- 3. RÈGLE D'ARCHIVAGE (Bonus) ---
+        // Ne pas afficher les sorties "historisées" (vieilles de plus d'un mois)
+        // Sauf si c'est pour l'historique ou si on veut explicitement les voir.
+        // Vérifiez si vous avez un état "Historisée" ou si c'est calculé par date.
+        // Exemple :
+        // $qb->andWhere('e.libelle != :etatArchive')
+        //    ->setParameter('etatArchive', 'Historisée');
+
         $qb->orderBy('s.dateHeureDebut', 'ASC');
 
         return $qb->getQuery()->getResult();
