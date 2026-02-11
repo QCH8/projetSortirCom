@@ -53,13 +53,40 @@
                             </div>
                         </div>
 
-                        {{ form_row(form.pseudo) }}
+                        {# On remplace form_row(form.pseudo) par ceci #}
+                        {# Composant Générique pour le PSEUDO #}
+                        {{ component('UniqueFieldChecker', { 
+                            value: form.pseudo.vars.value, 
+                            fieldName: 'pseudo',
+                            label: 'Pseudo',
+                            errorMessage: 'Ce pseudo est déjà pris.',
+                            inputName: form.pseudo.vars.full_name,
+                            initialValue: form.pseudo.vars.value
+                        }) }}
+                        
+                        {# Sécurité : Erreurs natives Pseudo #}
+                        <div class="text-red-500 text-sm mt-1 empty:hidden">{{ form_errors(form.pseudo) }}</div>
+                        {% do form.pseudo.setRendered() %}
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {{ form_row(form.prenom) }}
                             {{ form_row(form.nom) }}
                         </div>
                         {{ form_row(form.telephone) }}
-                        {{ form_row(form.mail) }}
+                        
+                        {# Composant Générique pour l'EMAIL #}
+                        {{ component('UniqueFieldChecker', { 
+                            value: form.mail.vars.value, 
+                            fieldName: 'mail',
+                            label: 'Email',
+                            errorMessage: 'Cet email est déjà associé à un compte.',
+                            inputName: form.mail.vars.full_name,
+                            initialValue: form.mail.vars.value
+                        }) }}
+                        
+                        {# Sécurité : Erreurs natives Email #}
+                        <div class="text-red-500 text-sm mt-1 empty:hidden">{{ form_errors(form.mail) }}</div>
+                        {% do form.mail.setRendered() %}
                     </div>
                 </div>
 
