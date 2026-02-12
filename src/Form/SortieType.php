@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use App\Entity\Campus;
 use App\Entity\Lieu;
 use App\Entity\Sortie;
 use App\Entity\Ville;
@@ -21,11 +22,10 @@ class SortieType extends AbstractType
         $now = new \DateTimeImmutable();
 
         $builder
-            // Nom de l'événement
+            // --- CHAMPS DE L'ENTITÉ ---
             ->add('nom', TextType::class, [
                 'label' => 'Nom de la sortie'
             ])
-            // Date et heure du début (widget single_text pour l'agenda HTML5)
             ->add('dateHeureDebut', DateTimeType::class, [
                 'label' => 'Date et heure de la sortie',
                 'widget' => 'single_text',
@@ -34,7 +34,6 @@ class SortieType extends AbstractType
                     'min' => $now->format('Y-m-d\TH:i')
                 ]
             ])
-            // Date limite pour s'inscrire
             ->add('dateLimiteInscription', DateTimeType::class, [
                 'label' => 'Date limite d\'inscription',
                 'widget' => 'single_text',
@@ -43,43 +42,45 @@ class SortieType extends AbstractType
                     'min' => $now->format('Y-m-d\TH:i')
                 ]
             ])
-            // Nombre de places disponibles
             ->add('nbInscriptionsMax', IntegerType::class, [
                 'label' => 'Nombre de places',
                 'attr' => ['min' => 1]
             ])
-            // Durée de l'activité
             ->add('duree', IntegerType::class, [
                 'label' => 'Durée (en minutes)',
                 'attr' => ['min' => 1]
             ])
-            // Description libre
             ->add('infosSortie', TextareaType::class, [
                 'label' => 'Description et infos',
                 'required' => false,
             ])
-            // Ville : Non "mappé" car la sortie est liée au Lieu, pas directement à la Ville
-            ->add('ville', EntityType::class, [
-                'class' => Ville::class,
-                'choice_label' => 'nom',
-                'placeholder' => '-- Choisir une ville --',
-                'mapped' => false,
-                'label' => 'Ville'
-            ])
-
-            // Liste déroulante des Lieux
             ->add('lieu', EntityType::class, [
                 'class' => Lieu::class,
                 'choice_label' => 'nom',
                 'placeholder' => '-- Choisir un lieu --',
                 'label' => 'Lieu'
-            ]);
+            ])
+
+        // --- CHAMPS NON MAPPÉS (Virtuels) ---
+        // Le champ Ville ne fait pas partie de l'entité Sortie. Je l'ajoute ici pour permettre le filtrage dynamique des lieux.
+        // J'utilise l'option 'ville_auto' (passée depuis le contrôleur) pour pré-remplir la valeur en cas de modification.
+        ->add('ville', EntityType::class, [
+        'class' => Ville::class,
+        'choice_label' => 'nom',
+        'placeholder' => '-- Choisir une ville --',
+        'mapped' => false,
+        'label' => 'Ville',
+        'required' => false,
+        'data' => $options['ville_auto']
+    ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => Sortie::class,
+            // Je définis une option par défaut à null pour éviter les erreurs lors de la création (où il n'y a pas de ville)
+            'ville_auto' => null,
         ]);
     }
 }
