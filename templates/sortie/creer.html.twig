@@ -83,7 +83,7 @@
 
                     <div class="p-6 space-y-6">
 
-                        {# Affichage du Campus (Correction du Warning "Missing Label") #}
+                        {# Affichage du Campus #}
                         <div>
                             <label for="campus_display" class="block text-sm font-medium text-gray-700">Campus organisateur</label>
                             <input type="text" id="campus_display" disabled value="{{ app.user.campus.nom }}"
@@ -109,7 +109,8 @@
                             {{ form_errors(form.lieu, {'attr': {'class': 'text-red-600 text-sm mt-1'}}) }}
                         </div>
 
-                        {# Zone d'infos Lieu (Rue/CP) #}
+                        {# Zone d'infos Lieu (Rue/CP) (Caché sans JS, mais structure présente)
+                        TODO à modifier quand on fera l'itération 2 #}
                         <div id="lieu-details" class="bg-blue-50 p-4 rounded-md border border-blue-100 hidden">
                             <p class="text-sm text-blue-800"><span class="font-bold">Rue :</span> <span id="lieu-rue">--</span></p>
                             <p class="text-sm text-blue-800"><span class="font-bold">Code postal :</span> <span id="lieu-cp">--</span></p>

@@ -1,0 +1,16 @@
+<div {{ attributes }}>
+    <label class="block text-sm font-medium text-gray-700">Pseudo</label>
+    
+    <input type="text" 
+           name="{{ inputName }}" 
+           value="{{ pseudo }}"
+           data-model="debounce(300)|pseudo" 
+           class="w-full rounded-md border-gray-300 shadow-sm {{ this.getErrorMessage() ? 'border-red-500' : 'focus:ring-indigo-500' }}">
+
+    {% if this.getErrorMessage() %}
+        {# ICI : Ton style my_theme est appliqué manuellement pour la réactivité #}
+        <div class="mt-2 flex items-center gap-2 text-sm text-red-600 font-semibold bg-red-50 p-2 rounded-lg border border-red-100">
+            <span>⚠️</span> {{ this.getErrorMessage() }}
+        </div>
+    {% endif %}
+</div>

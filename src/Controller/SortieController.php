@@ -141,7 +141,7 @@ class SortieController extends AbstractController
         ]);
     }
 
-    // --- MODIFIER UNE SORTIE --- //
+    // --- CREATION DE LA ROUTE "Modifier une sortie" --- //
     #[Route('/sortie/modifier/{id}', name: 'app_sortie_modifier', requirements: ['id' => '\d+'])]
     public function modifier(
         Sortie $sortie,
@@ -162,7 +162,14 @@ class SortieController extends AbstractController
             return $this->redirectToRoute('app_accueil');
         }
 
-        $form = $this->createForm(SortieType::class, $sortie);
+        // 3. Je récupère la ville du lieu actuel pour l'envoyer au formulaire
+        $villeActuelle = $sortie->getLieu() ? $sortie->getLieu()->getVille() : null;
+
+        // 4. Création du formulaire avec l'option personnalisée 'ville_auto'
+        $form = $this->createForm(SortieType::class, $sortie, [
+            'ville_auto' => $villeActuelle
+        ]);
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -190,7 +197,7 @@ class SortieController extends AbstractController
         ]);
     }
 
-    // --- SUPPRIMER UNE SORTIE --- //
+    // --- CREATION DE LA ROUTE "Supprimer une sortie" --- //
     #[Route('/sortie/supprimer/{id}', name: 'app_sortie_supprimer', requirements: ['id' => '\d+'])]
     public function supprimer(Sortie $sortie, EntityManagerInterface $entityManager): Response
     {
