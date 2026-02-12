@@ -89,6 +89,8 @@ final class ProfilController extends AbstractController
 
             $this->addFlash('success', 'Votre profil a été mis à jour avec succès !');
             return $this->redirectToRoute('app_profil_modifier');
+        } elseif ($form->isSubmitted()) {
+            $entityManagerInterface->refresh($participant);
         }
 
         return $this->render('profil/modifier.html.twig', [

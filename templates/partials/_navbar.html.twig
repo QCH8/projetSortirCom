@@ -17,7 +17,7 @@
             {% set currentRoute = app.request.attributes.get('_route') %}
             {% if is_granted('ROLE_ADMIN') %}
                 <li>
-                    <a href="{{ path('app_admin') }}">
+                    <a href="{{ path('app_admin_dashboard') }}">
                         Admin
                     </a>
                 </li>
