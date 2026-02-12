@@ -236,4 +236,24 @@ class Sortie
         // Condition 2 : Elle est "Terminée" ET elle a commencé il y a plus d'un mois
         return $libelleEtat === 'Terminée' && $this->getDateHeureDebut() < $unMoisDernier;
     }
+
+    public function getEtatBadgeClass(): string
+    {
+        if ($this->isHistorisee()) {
+            return 'bg-gray-100 text-gray-600 border-gray-300';
+        }
+
+        // On récupère le libellé de l'état lié
+        $libelle = $this->getEtat()->getLibelle();
+
+        return match ($libelle) {
+            'Ouverte'      => 'bg-green-100 text-green-800 border-green-200',
+            'Clôturée'     => 'bg-orange-100 text-orange-800 border-orange-200',
+            'En création'  => 'bg-purple-100 text-purple-800 border-purple-200',
+            'Annulée'      => 'bg-red-100 text-red-800 border-red-200',
+            'En cours'     => 'bg-blue-100 text-blue-800 border-blue-200 animate-pulse',
+            'Terminée'     => 'bg-gray-200 text-gray-700 border-gray-300',
+            default        => 'bg-gray-100 text-gray-800',
+        };
+    }
 }
