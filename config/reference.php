@@ -1485,6 +1485,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     page_limit?: scalar|Param|null, // Default: null
  *     convert_exception?: bool|Param, // Default: false
  *     remove_first_page_param?: bool|Param, // Default: false
+ * }
  * @psalm-type TwigComponentConfig = array{
  *     defaults?: array<string, string|array{ // Default: ["__deprecated__use_old_naming_behavior"]
  *         template_directory?: scalar|Param|null, // Default: "components"

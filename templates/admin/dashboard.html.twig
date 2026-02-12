@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Administration{% endblock %}
+
+{% block body %}
+<div class="container mx-auto mt-10 text-center">
+    <h1 class="text-3xl font-bold mb-12">Page d'administration</h1>
+
+    <div class="flex flex-wrap justify-center gap-6">
+        {# Bouton Campus #}
+        <a href="{{ path('app_campus_index') }}" class="px-8 py-4 border-2 border-black font-semibold hover:bg-gray-100 transition shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            Gérer les campus
+        </a>
+
+        {# Bouton Villes #}
+        <a href="{{ path('app_ville_index') }}" class="px-8 py-4 border-2 border-black font-semibold hover:bg-gray-100 transition shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            Gérer les villes
+        </a>
+
+        {# Bouton Utilisateurs #}
+        <a href="{{ path('app_admin_utilisateurs') }}" class="px-8 py-4 border-2 border-black font-semibold hover:bg-gray-100 transition shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            Gérer les utilisateurs
+        </a>
+    </div>
+
+    <div class="mt-16 inline-block bg-yellow-200 p-4 rotate-1 shadow-md border border-yellow-400">
+        <p class="text-sm font-medium">
+            📍 Cet écran est accessible uniquement avec les droits administrateurs
+        </p>
+    </div>
+</div>
+{% endblock %}
