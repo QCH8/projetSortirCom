@@ -103,11 +103,9 @@
 
                             {# Affichage dynamique de l'état (Badge couleur) #}
                             <td class="px-4 py-4 whitespace-nowrap">
-                                {% if sortie.isHistorisee() %}
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Historisée</span>
-                                {% else %}
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">{{ sortie.etat.libelle }}</span>
-                                {% endif %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full border {{ sortie.etatBadgeClass }}">
+                                    {{ sortie.isHistorisee() ? 'Historisée' : sortie.etat.libelle }}
+                                </span>
                             </td>
 
                             {# Indicateur d'inscription #}
