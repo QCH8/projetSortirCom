@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Controller;
-
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Entity\Participant;
 use App\Form\AdminCreateParticipantType;
 use App\Form\AdminModifyParticipantType;
@@ -9,13 +9,19 @@ use App\Form\SearchParticipantType;
 use App\Model\SearchParticipant;
 use App\Services\Admin\AdminUserService;
 use Knp\Component\Pager\PaginatorInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+
 final class AdminController extends AbstractController
 {
+
+    #[Route('/dashboard', name: 'app_admin_dashboard')]
+    public function index(): Response
+    {
+        return $this->render('admin/dashboard.html.twig');
+    }
 
     #[Route('/admin/gestion_utilisateurs', name: 'admin_users', methods: ['GET'])]
     public function listUsers(

@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Administration | Sortir.com{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-16 max-w-5xl bg-gray-50">
+    
+    {# En-tête centré, plus doux et moderne #}
+    <div class="text-center mb-16">
+        {# Titre moins "lourd" : gris foncé et sans la barre noire #}
+        <h1 class="text-5xl md:text-6xl font-extrabold text-gray-900 mb-4">
+            Administration
+        </h1>
+        <p class="text-xl text-gray-600 font-medium">
+            Centre de contrôle
+        </p>
+    </div>
+
+    {# Grille des actions #}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        {# --- Cartes Inactives (Campus & Villes) --- #}
+        {# On utilise un fond grisé, de la transparence et un curseur "interdit" #}
+        {% for item in [{icon: '🏫', title: 'Campus', desc: 'Gestion des sites.'}, {icon: '📍', title: 'Villes', desc: 'Administration des lieux.'}] %}
+        <div class="relative p-8 bg-gray-100 rounded-2xl border border-gray-200 opacity-60 cursor-not-allowed">
+            {# Petit badge "Bientôt" #}
+            <div class="absolute top-4 right-4 bg-gray-200 text-gray-500 text-xs font-bold px-2 py-1 rounded-full">
+                Bientôt
+            </div>
+            <div class="text-5xl mb-6 grayscale opacity-70">{{ item.icon }}</div>
+            <h2 class="text-2xl font-bold mb-3 text-gray-500">{{ item.title }}</h2>
+            <p class="text-gray-400 leading-relaxed">{{ item.desc }}</p>
+        </div>
+        {% endfor %}
+
+
+        {# --- Carte Active (Membres) --- #}
+        {# Fond blanc, ombres douces, bords arrondis et interaction au survol #}
+        <a href="{{ path('admin_users') }}" class="group relative p-8 bg-white rounded-2xl shadow-md border border-transparent transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-indigo-50">
+            {# Petit badge "Actif" #}
+            <div class="absolute top-4 right-4 bg-indigo-50 text-indigo-600 text-xs font-bold px-2 py-1 rounded-full">
+                Actif
+            </div>
+            {# L'icône grossit légèrement au survol #}
+            <div class="text-5xl mb-6 group-hover:scale-110 transition-transform duration-300">👥</div>
+            {# Le titre prend la couleur indigo au survol #}
+            <h2 class="text-2xl font-bold mb-3 text-gray-900 group-hover:text-indigo-700 transition-colors">Membres</h2>
+            <p class="text-gray-600 leading-relaxed">Gérer les comptes, les rôles et les accès.</p>
+            
+            {# Le lien du bas s'anime avec une flèche #}
+            <div class="mt-8 flex items-center text-indigo-600 font-semibold group-hover:gap-3 transition-all">
+                Accéder à la gestion <span>→</span>
+            </div>
+        </a>
+
+    </div>
+</div>
+{% endblock %}
