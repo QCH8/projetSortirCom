@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Participant;
+use App\Form\AdminCreateParticipantType;
 use App\Form\AdminModifyParticipantType;
 use App\Form\SearchParticipantType;
 use App\Model\SearchParticipant;
@@ -15,13 +16,6 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class AdminController extends AbstractController
 {
-    #[Route('/admin', name: 'app_admin')]
-    public function landingAdmin(): Response
-    {
-        return $this->render('admin/index.html.twig', [
-            'controller_name' => 'AdminController',
-        ]);
-    }
 
     #[Route('/admin/gestion_utilisateurs', name: 'admin_users', methods: ['GET'])]
     public function listUsers(
@@ -114,37 +108,34 @@ final class AdminController extends AbstractController
         return $this->redirectToRoute('admin_users');
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //todo: services -etablir la liste des campus -suppression du campus "ciblé" -modifier renvoi un form de modification -ajout de campus si on tape dans la liste
-    #[Route('/admin/gestion_campus', name: 'admin_campus')]
-    public function listCampus(): Response
+    #[Route('/admin/gestion_utilisateurs/creation', name:'admin_user_create', methods:['GET', 'POST'])]
+    public function createUser(
+        Request $request,
+        AdminUserService $adminUserService,
+    ): Response
     {
-        return $this->render('admin/index.html.twig', [
-            'controller_name' => 'AdminController',
+        //bien un admin
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $participant = new Participant();
+
+        $participant->setActif(true);
+        $participant->setAdministrateur(false);
+
+        $form = $this->createForm(AdminCreateParticipantType::class, $participant);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $plainPassword = (string) $form->get('plainPassword')->getData();
+
+            $adminUserService->create($participant, $plainPassword);
+            $this->addFlash('success', 'Utilisateur créé.');
+            return $this->redirectToRoute('admin_users');
+        }
+
+        return $this->render('admin/users/creerParAdmin.html.twig', [
+            'form' => $form->createView(),
+            'participant' => $participant,
         ]);
     }
-
-    //todo: services -etablir la liste des villes - suppression d'une ville - modification d'une ville -ajout de ville
-    #[Route('/admin/gestion_villes', name: 'admin_villes')]
-    public function listVilles(): Response
-    {
-        return $this->render('admin/index.html.twig', [
-            'controller_name' => 'AdminController',
-        ]);
-    }
-
-
-
 }
