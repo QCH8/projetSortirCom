@@ -172,8 +172,8 @@
 
                 {# Enregistrer #}
                 <button type="submit"
-                        class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 w-full sm:w-auto">
-                    <svg class="mr-2 h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        class="inline-flex justify-center items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 w-full sm:w-auto">
+                    <svg class="mr-2 h-4 w-4 text-violet-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                     </svg>
                     Enregistrer le brouillon
@@ -197,69 +197,117 @@
 {% block javascripts %}
     {{ parent() }}
     <script>
-        function initLocalisationScript() {
-            // 1. SÉLECTION DES ÉLÉMENTS
-            const villeSelect = document.querySelector('[id$="_ville"]');
-            const lieuSelect = document.querySelector('[id$="_lieu"]');
-            const detailsBloc = document.getElementById('lieu-details');
+        /*
+         * GESTION DYNAMIQUE DU FORMULAIRE SORTIE
+         * Gère l'interdépendance Ville <-> Lieu et l'affichage des coordonnées.
+         * Compatible avec le cycle de vie Symfony Turbo.
+         */
+        document.addEventListener('turbo:load', function() {
 
-            // Si les champs ne sont pas là (ex: autre page), on arrête
+            // 1. CIBLAGE PRÉCIS DES ÉLÉMENTS
+            const villeSelect = document.getElementById('sortie_ville');
+            const lieuSelect = document.getElementById('sortie_lieu');
+
+            // Éléments d'affichage (Détails)
+            const lieuDetails = document.getElementById('lieu-details');
+
+            // Si on n'est pas sur la page contenant le formulaire, on arrête.
             if (!villeSelect || !lieuSelect) return;
 
-            // 2. FONCTION D'AFFICHAGE
-            const updateLieuDetails = (id) => {
-                if (!id) {
-                    detailsBloc.classList.add('hidden');
+            // Protection : Empêche le script de se lancer 2 fois sur les mêmes éléments
+            if (villeSelect.dataset.jsAttached === "true") return;
+            villeSelect.dataset.jsAttached = "true";
+
+            console.log("📍 Initialisation du module Localisation...");
+
+            // 2. FONCTION : CHARGER LES LIEUX DEPUIS L'API
+            const chargerLieux = (villeId) => {
+                // UX : On vide la liste et on désactive le temps de charger
+                lieuSelect.innerHTML = '<option value="">Chargement...</option>';
+                lieuSelect.disabled = true;
+
+                // On cache les détails du lieu précédent
+                if(lieuDetails) lieuDetails.classList.add('hidden');
+
+                if (!villeId) {
+                    lieuSelect.innerHTML = '<option value="">-- Choisir une ville d\'abord --</option>';
+                    lieuSelect.disabled = false;
                     return;
                 }
 
-                // Petit effet visuel pour dire "je charge" (optionnel)
-                detailsBloc.classList.remove('hidden');
+                // Appel API
+                // On utilise un ID fictif '0' qu'on remplace par l'ID réel de la ville
+                const url = "{{ path('app_api_lieux_ville', {'id': 0}) }}".replace('0', villeId);
 
-                fetch(`/lieu/api/${id}`)
+                fetch(url)
                     .then(response => response.json())
                     .then(data => {
-                        document.getElementById('lieu-rue').textContent = data.rue || '--';
-                        document.getElementById('lieu-cp').textContent = data.codePostal || '--';
-                        document.getElementById('lieu-latitude').textContent = data.latitude || '--';
-                        document.getElementById('lieu-longitude').textContent = data.longitude || '--';
+                        lieuSelect.innerHTML = '<option value="">-- Choisir un lieu --</option>';
+
+                        if (data.length > 0) {
+                            data.forEach(lieu => {
+                                // Création propre des options
+                                const option = new Option(lieu.nom, lieu.id);
+                                lieuSelect.add(option);
+                            });
+                        } else {
+                            lieuSelect.innerHTML = '<option value="">Aucun lieu pour cette ville</option>';
+                        }
                     })
-                    .catch(err => console.error("Erreur API:", err));
+                    .catch(error => {
+                        console.error("Erreur API :", error);
+                        lieuSelect.innerHTML = '<option value="">Erreur de chargement</option>';
+                    })
+                    .finally(() => {
+                        lieuSelect.disabled = false;
+                    });
             };
 
-            // 3. LISTENERS
-            // Changement de ville
-            villeSelect.addEventListener('change', (e) => {
-                lieuSelect.innerHTML = '<option value="">Chargement...</option>';
-                fetch(`/ville/api/${e.target.value}/lieux`)
-                    .then(r => r.json())
+            // 3. FONCTION : AFFICHER LES DÉTAILS (Rue, Lat, Long...)
+            const afficherDetails = (lieuId) => {
+                if (!lieuId) {
+                    if(lieuDetails) lieuDetails.classList.add('hidden');
+                    return;
+                }
+
+                const url = "{{ path('app_api_lieu_details', {'id': 0}) }}".replace('0', lieuId);
+
+                fetch(url)
+                    .then(response => response.json())
                     .then(data => {
-                        lieuSelect.innerHTML = '<option value="">-- Choisir un lieu --</option>';
-                        data.forEach(l => {
-                            const opt = document.createElement('option');
-                            opt.value = l.id;
-                            opt.textContent = l.nom;
-                            lieuSelect.appendChild(opt);
-                        });
-                        detailsBloc.classList.add('hidden');
-                    });
-            });
+                        if(lieuDetails) {
+                            document.getElementById('lieu-rue').textContent = data.rue || 'Non renseigné';
+                            document.getElementById('lieu-cp').textContent = data.codePostal || 'Non renseigné';
+                            document.getElementById('lieu-latitude').textContent = data.latitude || '--';
+                            document.getElementById('lieu-longitude').textContent = data.longitude || '--';
 
-            // Changement de lieu
-            lieuSelect.addEventListener('change', (e) => updateLieuDetails(e.target.value));
+                            lieuDetails.classList.remove('hidden');
+                        }
+                    })
+                    .catch(error => console.error("Erreur Détails :", error));
+            };
 
-            // 4. INITIALISATION FORCÉE
-            // On vérifie si une valeur est déjà là au chargement
+            // 4. ÉCOUTEURS D'ÉVÉNEMENTS
+            villeSelect.addEventListener('change', (e) => chargerLieux(e.target.value));
+            lieuSelect.addEventListener('change', (e) => afficherDetails(e.target.value));
+
+            // 5. INITIALISATION (Logique de démarrage)
+
+            // Cas A : Mode "Modifier" (Un lieu est déjà sélectionné)
             if (lieuSelect.value) {
-                updateLieuDetails(lieuSelect.value);
+                afficherDetails(lieuSelect.value);
             }
-        }
-
-        // 5. DÉCLENCHEURS
-        // Cas 1 : Chargement classique (F5, Entrée dans l'URL)
-        document.addEventListener('DOMContentLoaded', initLocalisationScript);
-
-        // Cas 2 : Navigation via Symfony Turbo (Clic sur un lien "Modifier")
-        document.addEventListener('turbo:load', initLocalisationScript);
+            // Cas B : Mode "Créer" (Ville pré-remplie, mais pas de lieu)
+            else if (villeSelect.value) {
+                // IMPORTANT : C'est ici qu'on empêche l'affichage de "Tous les lieux"
+                // On force le rechargement de la liste pour ne garder que ceux de la ville
+                chargerLieux(villeSelect.value);
+            }
+            // Cas C : Rien n'est sélectionné
+            else {
+                // On vide la liste par sécurité
+                lieuSelect.innerHTML = '<option value="">-- Choisir une ville d\'abord --</option>';
+            }
+        });
     </script>
 {% endblock %}

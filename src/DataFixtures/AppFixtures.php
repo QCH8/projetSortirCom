@@ -94,7 +94,7 @@ class AppFixtures extends Fixture
         // --- CRÉATION DES LIEUX ---
         $lieuxArray = [];
         foreach ($villesArray as $ville) {
-            for ($i = 1; $i <= 3; $i++) {
+            for ($i = 1; $i <= 10; $i++) {
                 $lieu = new Lieu();
                 $lieu->setNom("Lieu " . $i . " à " . $ville->getNom())
                     ->setRue($faker->streetAddress())

@@ -6,11 +6,16 @@ use App\Entity\Participant;
 use App\Entity\Sortie;
 use App\Form\SearchSortieType;
 use App\Form\SortieType;
+use App\Repository\VilleRepository;
 use App\Repository\EtatRepository;
 use App\Repository\SortieRepository;
 use App\Services\MiseAJourEtatSortie;
+use App\Entity\Lieu;
+use App\Entity\Ville;
+use App\Repository\LieuRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -92,7 +97,7 @@ class SortieController extends AbstractController
 
     // --- CREATION DE LA ROUTE "Créer une sortie" --- //
     #[Route('/sortie/creer', name: 'app_sortie_creer', methods: ['GET', 'POST'])]
-    public function creer(Request $request, EntityManagerInterface $entityManager, EtatRepository $etatRepository): Response
+    public function creer(Request $request, EntityManagerInterface $entityManager, EtatRepository $etatRepository, VilleRepository $villeRepository): Response
     {
         // 1. Vérification que l'utilisateur est connecté
         /** @var Participant $user */
@@ -108,7 +113,14 @@ class SortieController extends AbstractController
         // Le campus est celui de l'organisateur
         $sortie->setCampus($user->getCampus());
 
-        $form = $this->createForm(SortieType::class, $sortie);
+        // --- PRÉ-SELECTION DE LA VILLE ---
+        // On cherche la ville qui a le même nom que le campus de l'utilisateur. (ATTENTION : le nom des Campus et des Villes doivent correspondre en BDD)
+        $villeCampus = $villeRepository->findOneBy(['nom' => $user->getCampus()->getNom()]);
+
+        // On passe cette ville au formulaire via l'option 'ville_auto'
+        $form = $this->createForm(SortieType::class, $sortie, [
+            'ville_auto' => $villeCampus
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -219,30 +231,33 @@ class SortieController extends AbstractController
     }
 
     // --- ROUTES API --- //
-    #[Route('/lieu/api/{id}', name: 'app_lieu_api', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function getLieuApi(\App\Entity\Lieu $lieu): Response
+
+    // Renvoie la liste des lieux pour une ville donnée
+    #[Route('/api/ville/{id}/lieux', name: 'app_api_lieux_ville', methods: ['GET'])]
+    public function getLieuxByVille(Ville $ville, LieuRepository $lieuRepository): JsonResponse
     {
-        return $this->json([
+        $lieux = $lieuRepository->findBy(['ville' => $ville]);
+
+        $data = [];
+        foreach ($lieux as $lieu) {
+            $data[] = [
+                'id' => $lieu->getId(),
+                'nom' => $lieu->getNom(),
+            ];
+        }
+
+        return new JsonResponse($data);
+    }
+
+    // Renvoie les détails d'un lieu (Rue, Code Postal, Lat, Long)
+    #[Route('/api/lieu/{id}/details', name: 'app_api_lieu_details', methods: ['GET'])]
+    public function getLieuDetails(Lieu $lieu): JsonResponse
+    {
+        return new JsonResponse([
             'rue' => $lieu->getRue(),
             'codePostal' => $lieu->getVille()->getCodePostal(),
             'latitude' => $lieu->getLatitude(),
             'longitude' => $lieu->getLongitude(),
         ]);
-    }
-
-    #[Route('/ville/api/{id}/lieux', name: 'app_ville_lieux_api', methods: ['GET'])]
-    public function getLieuxParVille(\App\Entity\Ville $ville): Response
-    {
-        $lieux = $ville->getLieux();
-        $data = [];
-
-        foreach ($lieux as $lieu) {
-            $data[] = [
-                'id' => $lieu->getId(),
-                'nom' => $lieu->getNom()
-            ];
-        }
-
-        return $this->json($data);
     }
 }
